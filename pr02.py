@@ -10,6 +10,10 @@ class SuperDistVarik7:
     def rvs(self, size=None):
         return self._chi2.rvs(size=size) / 2.0
 
+    @staticmethod
+    def from_mean(mean):
+        return SuperDistVarik7(int(mean * 2))
+
 def mean_within_confidence_interval(sample, expected_mean, alpha=0.05):
     # Returns true if the given `expected_mean` is within confidence interval for the mean of the distribution
     # represented by `sample`, false otherwise
@@ -46,9 +50,7 @@ def pr02b(true_mean=3.0):
         mean_prob_ys = []
 
         for expected_mean in np.arange(1.0, 2.0 * true_mean - 1.0 + 0.01, 0.5):
-            theta = int(expected_mean * 2)
-
-            psi = SuperDistVarik7(theta)
+            psi = SuperDistVarik7.from_mean(expected_mean)
 
             total_expetiments = 1000
             times_rejected = 0
