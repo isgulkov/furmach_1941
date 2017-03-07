@@ -38,7 +38,7 @@ def pr02a():
 
     print "Null hypothesis was rejected %d times out of %d, so the P false positive is %f" % (times_rejected, total_expetiments, 1.0 * times_rejected / total_expetiments)
 
-def pr02b():
+def pr02b(mean_query=3.0):
     plt.title("Probability of rejection")
     plt.xlabel("True mean")
 
@@ -46,7 +46,7 @@ def pr02b():
         mean_prob_xs = []
         mean_prob_ys = []
 
-        for mean in np.arange(1.0, 5.01, 0.5):
+        for mean in np.arange(1.0, 2.0 * mean_query - 1.0 + 0.01, 0.5):
             theta = int(mean * 2)
 
             psi = SuperDistVarik7(theta)
