@@ -10,6 +10,13 @@ class SuperDistVarik7:
     def rvs(self, size=None):
         return self._chi2.rvs(size=size) / 2.0
 
+def mean_within_confidence_interval(sample, mean, alpha=0.05):
+    # Check whether the given `mean` is within confidence interval for the mean of the distribution represented by `sample`
+
+    t_stat, p_value = ttest_1samp(sample, 3)
+
+    return p_value < alpha
+
 def pr02a():
     xi = SuperDistVarik7(6)
 
@@ -21,10 +28,9 @@ def pr02a():
     for i in xrange(total_expetiments):
         sample = xi.rvs(size=8)
 
-        t_stat, p_value = ttest_1samp(sample, 3)
-
-        if p_value < 0.05:
+        if mean_within_confidence_interval(sample, 3):
             times_rejected += 1
+
 
     print "Null hypothesis was rejected %d times out of %d, so the P false positive is %f" % (times_rejected, total_expetiments, 1.0 * times_rejected / total_expetiments)
 
@@ -48,9 +54,7 @@ def pr02b():
             for i in xrange(total_expetiments):
                 sample = psi.rvs(size=sample_size)
 
-                t_stat, p_value = ttest_1samp(sample, 3)
-
-                if p_value < 0.05:
+                if mean_within_confidence_interval(sample, 3):
                     times_rejected += 1
 
             mean_prob_xs.append(mean)
