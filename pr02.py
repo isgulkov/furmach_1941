@@ -10,10 +10,10 @@ class SuperDistVarik7:
     def rvs(self, size=None):
         return self._chi2.rvs(size=size) / 2.0
 
-def mean_within_confidence_interval(sample, mean, alpha=0.05):
-    # Check whether the given `mean` is within confidence interval for the mean of the distribution represented by `sample`
+def mean_within_confidence_interval(sample, mean_query, alpha=0.05):
+    # Check whether the given `mean_query` is within confidence interval for the mean of the distribution represented by `sample`
 
-    t_stat, p_value = ttest_1samp(sample, 3)
+    t_stat, p_value = ttest_1samp(sample, mean_query)
 
     return p_value < alpha
 
