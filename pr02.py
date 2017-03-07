@@ -11,11 +11,15 @@ class SuperDistVarik7:
         return self._chi2.rvs(size=size) / 2.0
 
 def mean_within_confidence_interval(sample, mean_query, alpha=0.05):
-    # Check whether the given `mean_query` is within confidence interval for the mean of the distribution represented by `sample`
+    # Returns true if the given `mean_query` is within confidence interval for
+    # the mean of the distribution represented by `sample`, false otherwise
 
     t_stat, p_value = ttest_1samp(sample, mean_query)
 
-    return p_value < alpha
+    # As the p-value is the minimum alpha such that `mean_query` is in the
+    # confidence interval, to accept the the hypothesis, the alpha in question
+    # must be less than the p-value
+    return alpha < p_value
 
 def pr02a():
     xi = SuperDistVarik7(6)
@@ -28,7 +32,7 @@ def pr02a():
     for i in xrange(total_expetiments):
         sample = xi.rvs(size=8)
 
-        if mean_within_confidence_interval(sample, 3):
+        if not mean_within_confidence_interval(sample, 3):
             times_rejected += 1
 
 
@@ -55,7 +59,7 @@ def pr02b():
             for i in xrange(total_expetiments):
                 sample = psi.rvs(size=sample_size)
 
-                if mean_within_confidence_interval(sample, 3):
+                if not mean_within_confidence_interval(sample, mean_query):
                     times_rejected += 1
 
             mean_prob_xs.append(mean)
