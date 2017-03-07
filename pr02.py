@@ -36,6 +36,7 @@ def pr02a():
 
 def pr02b():
     plt.title("Probability of rejection")
+    plt.xlabel("True mean")
 
     for sample_size in [8, 50]:
         mean_prob_xs = []
@@ -62,6 +63,7 @@ def pr02b():
 
         plt.plot(mean_prob_xs, mean_prob_ys, label="Sample size %d" % (sample_size, ))
 
+    plt.legend()
     plt.show()
 
 if __name__ == '__main__':
