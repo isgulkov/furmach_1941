@@ -11,14 +11,13 @@ class SuperDistVarik7:
         return self._chi2.rvs(size=size) / 2.0
 
 def mean_within_confidence_interval(sample, expected_mean, alpha=0.05):
-    # Returns true if the given `expected_mean` is within confidence interval
-    # for the mean of the distribution represented by `sample`, false otherwise
+    # Returns true if the given `expected_mean` is within confidence interval for the mean of the distribution
+    # represented by `sample`, false otherwise
 
     t_stat, p_value = ttest_1samp(sample, expected_mean)
 
-    # As the p-value is the minimum alpha such that `expected_mean` is in the
-    # confidence interval, to accept the the hypothesis, the alpha in question
-    # must be less than the p-value
+    # As the p-value is the minimum alpha such that `expected_mean` is in the confidence interval, to accept the the
+    # hypothesis, the alpha in question must be less than the p-value
     return alpha < p_value
 
 def pr02a():
@@ -35,8 +34,8 @@ def pr02a():
         if not mean_within_confidence_interval(sample, 3):
             times_rejected += 1
 
-
-    print "Null hypothesis was rejected %d times out of %d, so the P false positive is %f" % (times_rejected, total_expetiments, 1.0 * times_rejected / total_expetiments)
+    print "Null hypothesis was rejected %d times out of %d, so the P false positive is %f" % (times_rejected,
+        total_expetiments, 1.0 * times_rejected / total_expetiments)
 
 def pr02b(true_mean=3.0):
     plt.title("Probability of rejection")
@@ -54,7 +53,8 @@ def pr02b(true_mean=3.0):
             total_expetiments = 1000
             times_rejected = 0
 
-            print "\tconducting %d t-tests, sample size %d, true mean %.1f..." % (total_expetiments, sample_size, expected_mean, )
+            print "\tconducting %d t-tests, sample size %d, true mean %.1f..." % (total_expetiments, sample_size,
+                expected_mean, )
 
             for i in xrange(total_expetiments):
                 sample = psi.rvs(size=sample_size)
