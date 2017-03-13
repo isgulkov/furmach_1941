@@ -27,7 +27,7 @@ def mean_within_confidence_interval(sample, expected_mean, alpha=0.05):
     return alpha < p_value
 
 def pr02a():
-    xi = SuperDistVarik7(6)
+    xi = SuperDistVarik7.from_mean(3.0)
 
     total_expetiments = 10000
     times_rejected = 0
