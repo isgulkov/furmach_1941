@@ -12,9 +12,9 @@ class SuperDistVarik7:
     def rvs(self, size=None):
         return self._chi2.rvs(size=size) / 2.0
 
-    @staticmethod
-    def from_mean(mean):
-        return SuperDistVarik7(int(mean * 2))
+    @classmethod
+    def from_mean(cls, mean):
+        return cls(int(mean * 2))
 
 def mean_within_confidence_interval(sample, expected_mean, alpha=0.05):
     # Returns true if the given `expected_mean` is within confidence interval for the mean of the distribution
