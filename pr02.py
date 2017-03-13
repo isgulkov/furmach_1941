@@ -43,7 +43,7 @@ def pr02a():
     print "Null hypothesis was rejected %d times out of %d, so the P false positive is %f" % (times_rejected,
         total_expetiments, 1.0 * times_rejected / total_expetiments)
 
-def pr02b(true_mean=3.0):
+def pr02b(expected_mean=3.0):
     plt.title("Probability of rejection")
     plt.xlabel("True mean")
 
@@ -51,22 +51,22 @@ def pr02b(true_mean=3.0):
         mean_prob_xs = []
         mean_prob_ys = []
 
-        for expected_mean in np.arange(1.0, 2.0 * true_mean - 1.0 + 0.01, 0.5):
-            psi = SuperDistVarik7.from_mean(expected_mean)
+        for true_mean in np.arange(1.0, 2.0 * expected_mean - 1.0 + 0.01, 0.5):
+            psi = SuperDistVarik7.from_mean(true_mean)
 
             total_expetiments = 1000
             times_rejected = 0
 
             print "\tconducting %d t-tests, sample size %d, true mean %.1f..." % (total_expetiments, sample_size,
-                expected_mean, )
+                true_mean, )
 
             for i in xrange(total_expetiments):
                 sample = psi.rvs(size=sample_size)
 
-                if not mean_within_confidence_interval(sample, true_mean):
+                if not mean_within_confidence_interval(sample, expected_mean):
                     times_rejected += 1
 
-            mean_prob_xs.append(expected_mean)
+            mean_prob_xs.append(true_mean)
             mean_prob_ys.append(1.0 * times_rejected / total_expetiments)
 
         plt.plot(mean_prob_xs, mean_prob_ys, label="Sample size %d" % (sample_size, ))
