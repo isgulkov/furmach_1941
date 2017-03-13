@@ -3,6 +3,8 @@ import numpy as np
 
 from matplotlib import pyplot as plt, gridspec, mlab
 
+from os import system
+
 class SuperDistVarik7:
     def __init__(self, n):
         self._chi2 = chi2(n)
@@ -70,7 +72,9 @@ def pr02b(true_mean=3.0):
         plt.plot(mean_prob_xs, mean_prob_ys, label="Sample size %d" % (sample_size, ))
 
     plt.legend()
-    plt.show()
+    plt.savefig("~figure.png")
+
+    system("open ./~figure.png")
 
 if __name__ == '__main__':
     pr02a()
