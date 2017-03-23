@@ -4,7 +4,7 @@ from matplotlib import pyplot as plt, gridspec, mlab
 from os import system
 from sys import argv
 
-from pr01_distributions import getDistByVariantNumber
+from pr01_distributions import get_dist_by_variant_number
 
 def pr01(Dist):
     xi = Dist()
@@ -56,6 +56,6 @@ if __name__ == '__main__':
     if len(argv) != 2:
         print "Usage: python pr01.py [x], x - varik number"
     else:
-        Dist = getDistByVariantNumber(int(argv[1]))
+        Dist = get_dist_by_variant_number(int(argv[1]))
 
         pr01(Dist)

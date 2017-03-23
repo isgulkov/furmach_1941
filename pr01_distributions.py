@@ -68,7 +68,7 @@ class DistVariant10(rv_continuous):
         else:
             return 0
 
-def getDistByVariantNumber(v):
+def get_dist_by_variant_number(v):
     return (DistVariant1,
         DistVariant2,
         DistVariant3,
