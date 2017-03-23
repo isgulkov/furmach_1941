@@ -1,20 +1,12 @@
-from scipy.stats import rv_continuous, chi2, ttest_1samp
+from scipy.stats import ttest_1samp
 import numpy as np
 
 from matplotlib import pyplot as plt, gridspec, mlab
 
 from os import system
+from sys import argv
 
-class SuperDistVarik7:
-    def __init__(self, n):
-        self._chi2 = chi2(n)
-
-    def rvs(self, size=None):
-        return self._chi2.rvs(size=size) / 2.0
-
-    @classmethod
-    def from_mean(cls, mean):
-        return cls(int(mean * 2))
+from pr02variants import get_dist_by_variant_number
 
 def mean_within_confidence_interval(sample, expected_mean, alpha=0.05):
     # Returns true if the given `expected_mean` is within confidence interval for the mean of the distribution
@@ -26,8 +18,8 @@ def mean_within_confidence_interval(sample, expected_mean, alpha=0.05):
     # hypothesis, the alpha in question must be less than the p-value
     return alpha < p_value
 
-def pr02a():
-    xi = SuperDistVarik7.from_mean(3.0)
+def pr02a(Dist):
+    xi = Dist.from_mean(3.0)
 
     total_expetiments = 10000
     times_rejected = 0
@@ -43,7 +35,7 @@ def pr02a():
     print "Null hypothesis was rejected %d times out of %d, so the P false positive is %f" % (times_rejected,
         total_expetiments, 1.0 * times_rejected / total_expetiments)
 
-def pr02b(expected_mean=3.0):
+def pr02b(Dist, expected_mean=3.0):
     plt.title("Probability of rejection")
     plt.xlabel("True mean")
 
@@ -52,7 +44,7 @@ def pr02b(expected_mean=3.0):
         mean_prob_ys = []
 
         for true_mean in np.arange(1.0, 2.0 * expected_mean - 1.0 + 0.01, 0.5):
-            psi = SuperDistVarik7.from_mean(true_mean)
+            psi = Dist.from_mean(true_mean)
 
             total_expetiments = 1000
             times_rejected = 0
@@ -75,8 +67,11 @@ def pr02b(expected_mean=3.0):
     plt.savefig("~figure.png")
 
     system("open ./~figure.png")
-
 if __name__ == '__main__':
-    pr02a()
-    pr02b()
+    if len(argv) != 2:
+        print "Usage: python pr01.py [x], x - varik number"
+    else:
+        Dist = get_dist_by_variant_number(int(argv[1]))
 
+    pr02a(Dist)
+    pr02b(Dist)
