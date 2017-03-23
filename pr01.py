@@ -1,19 +1,13 @@
-from scipy.stats import rv_continuous
 import numpy as np
-
 from matplotlib import pyplot as plt, gridspec, mlab
 
 from os import system
+from sys import argv
 
-def pr01():
-    class DistVarik7(rv_continuous):
-        def _cdf(self, x, *args):
-            if x < 0:
-                return 0
-            else:
-                return 1 - 2 ** (-(x ** 1.5))
+from pr01_distributions import getDistByVarik
 
-    xi = DistVarik7()
+def pr01(Dist):
+    xi = Dist()
 
     fig = plt.figure(figsize=(12, 6, ))
     gs = gridspec.GridSpec(1, 2, width_ratios=[1, 1])
@@ -59,5 +53,9 @@ def pr01():
     system("open ./~figure.png")
 
 if __name__ == '__main__':
-    pr01()
+    if len(argv) != 2:
+        print "Usage: python pr01.py [x], x - varik number"
+    else:
+        Dist = getDistByVarik(int(argv[1]))
 
+        pr01(Dist)
