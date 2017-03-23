@@ -24,7 +24,9 @@ def pr01(Dist):
         plt.hist(sample, 10, normed=True, alpha=0.7, label="Sample size %s" % (sample_size, ))
 
     # Plot PDF on top of the histograms
-    xs = np.linspace(0.01, 5.0, num=100)
+    x_left, x_right = fig.gca().axes.get_xlim()
+    xs = np.linspace(x_left, x_right, num=100)
+
     plt.plot(xs, [xi.pdf(x) for x in xs], 'r', label="f_X")
     
     plt.legend()
@@ -41,7 +43,9 @@ def pr01(Dist):
     plt.hist(sample, 10, normed=True)
 
     # Plot the PDF of the Y rv, which by CLT is close to N(n * mu, n * sigma^2)
-    xs = np.linspace(0.0, 50.0, num=100)
+    x_left, x_right = fig.gca().axes.get_xlim()
+    xs = np.linspace(x_left, x_right, num=100)
+    
     plt.plot(xs, mlab.normpdf(xs, 30 * xi.mean(), np.sqrt(30) * xi.std()), 'r', label="f_Y")
 
     plt.legend()
