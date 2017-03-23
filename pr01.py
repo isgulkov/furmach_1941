@@ -1,19 +1,13 @@
-from scipy.stats import rv_continuous
 import numpy as np
-
 from matplotlib import pyplot as plt, gridspec, mlab
 
 from os import system
+from sys import argv
 
-def pr01():
-    class DistVarik7(rv_continuous):
-        def _cdf(self, x, *args):
-            if x < 0:
-                return 0
-            else:
-                return 1 - 2 ** (-(x ** 1.5))
+from pr01variants import get_dist_by_variant_number
 
-    xi = DistVarik7()
+def pr01(Dist):
+    xi = Dist()
 
     fig = plt.figure(figsize=(12, 6, ))
     gs = gridspec.GridSpec(1, 2, width_ratios=[1, 1])
@@ -30,7 +24,9 @@ def pr01():
         plt.hist(sample, 10, normed=True, alpha=0.7, label="Sample size %s" % (sample_size, ))
 
     # Plot PDF on top of the histograms
-    xs = np.linspace(0.01, 5.0, num=100)
+    x_left, x_right = fig.gca().axes.get_xlim()
+    xs = np.linspace(x_left, x_right, num=100)
+
     plt.plot(xs, [xi.pdf(x) for x in xs], 'r', label="f_X")
     
     plt.legend()
@@ -47,7 +43,9 @@ def pr01():
     plt.hist(sample, 10, normed=True)
 
     # Plot the PDF of the Y rv, which by CLT is close to N(n * mu, n * sigma^2)
-    xs = np.linspace(0.0, 50.0, num=100)
+    x_left, x_right = fig.gca().axes.get_xlim()
+    xs = np.linspace(x_left, x_right, num=100)
+    
     plt.plot(xs, mlab.normpdf(xs, 30 * xi.mean(), np.sqrt(30) * xi.std()), 'r', label="f_Y")
 
     plt.legend()
@@ -59,5 +57,9 @@ def pr01():
     system("open ./~figure.png")
 
 if __name__ == '__main__':
-    pr01()
+    if len(argv) != 2:
+        print "Usage: python pr01.py [x], x - varik number"
+    else:
+        Dist = get_dist_by_variant_number(int(argv[1]))
 
+        pr01(Dist)
