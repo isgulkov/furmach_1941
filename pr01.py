@@ -4,7 +4,7 @@ from matplotlib import pyplot as plt, gridspec, mlab
 from os import system
 from sys import argv
 
-from pr01_distributions import get_dist_by_variant_number
+from pr01variants import get_dist_by_variant_number
 
 def pr01(Dist):
     xi = Dist()
