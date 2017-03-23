@@ -3,6 +3,8 @@ import numpy as np
 
 from matplotlib import pyplot as plt, gridspec, mlab
 
+from os import system
+
 def pr01():
     class DistVarik7(rv_continuous):
         def _cdf(self, x, *args):
@@ -52,7 +54,9 @@ def pr01():
     plt.title("Sample of Y of size 1000")
 
     plt.tight_layout()
-    plt.show()
+    plt.savefig("~figure.png")
+
+    system("open ./~figure.png")
 
 if __name__ == '__main__':
     pr01()
