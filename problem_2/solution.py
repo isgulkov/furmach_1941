@@ -1,7 +1,7 @@
 from scipy.stats import ttest_1samp
 import numpy as np
 
-from matplotlib import pyplot as plt, gridspec, mlab
+from matplotlib import pyplot as plt, gridspec
 
 from os import system
 
