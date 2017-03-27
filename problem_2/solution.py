@@ -4,9 +4,6 @@ import numpy as np
 from matplotlib import pyplot as plt, gridspec, mlab
 
 from os import system
-from sys import argv
-
-from pr02variants import get_dist_by_variant_number
 
 def mean_within_confidence_interval(sample, expected_mean, alpha=0.05):
     # Returns true if the given `expected_mean` is within confidence interval for the mean of the distribution
@@ -67,11 +64,3 @@ def pr02b(Dist, expected_mean=3.0):
     plt.savefig("~figure.png")
 
     system("open ./~figure.png")
-if __name__ == '__main__':
-    if len(argv) != 2:
-        print "Usage: python pr01.py [x], x - varik number"
-    else:
-        Dist = get_dist_by_variant_number(int(argv[1]))
-
-    pr02a(Dist)
-    pr02b(Dist)
