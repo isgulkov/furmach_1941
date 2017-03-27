@@ -9,5 +9,5 @@ if __name__ == '__main__':
     else:
         Dist = get_dist_by_variant_number(int(argv[1]))
 
-    pr02a(Dist)
-    pr02b(Dist)
+	    pr02a(Dist)
+	    pr02b(Dist)
