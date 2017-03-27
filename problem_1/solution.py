@@ -2,9 +2,6 @@ import numpy as np
 from matplotlib import pyplot as plt, gridspec, mlab
 
 from os import system
-from sys import argv
-
-from pr01variants import get_dist_by_variant_number
 
 def pr01(Dist):
     xi = Dist()
@@ -55,11 +52,3 @@ def pr01(Dist):
     plt.savefig("~figure.png")
 
     system("open ./~figure.png")
-
-if __name__ == '__main__':
-    if len(argv) != 2:
-        print "Usage: python pr01.py [x], x - varik number"
-    else:
-        Dist = get_dist_by_variant_number(int(argv[1]))
-
-        pr01(Dist)
