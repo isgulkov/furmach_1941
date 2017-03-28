@@ -24,7 +24,7 @@ def pr01(Dist):
     x_left, x_right = fig.gca().axes.get_xlim()
     xs = np.linspace(x_left, x_right, num=100)
 
-    plt.plot(xs, [xi.pdf(x) for x in xs], 'r', label="f_X")
+    plt.plot(xs, [xi.pdf(x) for x in xs], 'r', label="$f_X$")
     
     plt.legend()
     plt.title("Samples of X of different sizes")
@@ -43,7 +43,7 @@ def pr01(Dist):
     x_left, x_right = fig.gca().axes.get_xlim()
     xs = np.linspace(x_left, x_right, num=100)
     
-    plt.plot(xs, mlab.normpdf(xs, 30 * xi.mean(), np.sqrt(30) * xi.std()), 'r', label="f_Y")
+    plt.plot(xs, mlab.normpdf(xs, 30 * xi.mean(), np.sqrt(30) * xi.std()), 'r', label="$f_Y$")
 
     plt.legend()
     plt.title("Sample of Y of size 1000")
