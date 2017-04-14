@@ -22,8 +22,17 @@ def pr03((xs, ys, )):
     cur_axes.axes.set_xlim(0, 1)
     cur_axes.axes.set_ylim(-3, 0)
 
-    plt.text(0.05, -1, "$r_{pearson} = %.4f$ with $p = %e$" % pearsonr(xs, ys), clip_on=False)
-    plt.text(0.05, -2, "$r_{spearman} = %.4f$ with $p = %e$" % spearmanr(xs, ys), clip_on=False)
+    alpha = 0.05
+
+    pearson_r, pearson_pvalue = pearsonr(xs, ys)
+    pearson_corr_message = alpha < pearson_pvalue and "Corr." or "No corr."
+
+    plt.text(0.05, -1, "$r = %.4f$ with $p = %e$ (%s at $\\alpha=0.05$)" % (pearson_r, pearson_pvalue, pearson_corr_message, ), clip_on=False)
+
+    spearman_r, spearman_pvalue = spearmanr(xs, ys)
+    spearman_corr_message = alpha < spearman_pvalue and "Corr." or "No corr."
+
+    plt.text(0.05, -2, "$\\rho = %.4f$ with $p = %e$ (%s at $\\alpha=0.05$)" % (spearman_r, spearman_pvalue, spearman_corr_message, ), clip_on=False)
 
     r_spearman, p_spearman = spearmanr(xs, ys)
 
