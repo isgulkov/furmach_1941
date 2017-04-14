@@ -11,7 +11,7 @@ def pr03((xs, ys, )):
 
     fig.add_subplot(gs[0])
 
-    plt.scatter(xs, ys, s=1.0)
+    plt.scatter(xs, ys, s=5.0)
 
     fig.add_subplot(gs[1])
 
