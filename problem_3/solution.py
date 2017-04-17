@@ -25,12 +25,12 @@ def pr03((xs, ys, )):
     alpha = 0.05
 
     pearson_r, pearson_pvalue = pearsonr(xs, ys)
-    pearson_corr_message = alpha < pearson_pvalue and "Corr." or "No corr."
+    pearson_corr_message = alpha < pearson_pvalue and "No corr." or "Corr."
 
     plt.text(0.05, -1, "$r = %.4f$ with $p = %e$ (%s at $\\alpha=0.05$)" % (pearson_r, pearson_pvalue, pearson_corr_message, ), clip_on=False)
 
     spearman_r, spearman_pvalue = spearmanr(xs, ys)
-    spearman_corr_message = alpha < spearman_pvalue and "Corr." or "No corr."
+    spearman_corr_message = alpha < spearman_pvalue and "No corr." or "Corr."
 
     plt.text(0.05, -2, "$\\rho = %.4f$ with $p = %e$ (%s at $\\alpha=0.05$)" % (spearman_r, spearman_pvalue, spearman_corr_message, ), clip_on=False)
 
