@@ -1,4 +1,5 @@
 import numpy as np
+from scipy import stats
 from matplotlib import pyplot as plt, gridspec
 
 from os import system, path
@@ -32,15 +33,28 @@ def pr04_part1((x2s, x3s, x4s, ys, ), var_number):
 
     template_vars['beta_hats'] = beta_vector.tolist()
 
-    # Compute RSS for the regression model
-    template_vars['overall_rss'] = sum(map(lambda x: x, residues))
+    # Calculate RSS for the regression model
+    overall_rss = sum(map(lambda x: x, residues))
 
-    # Compute ESS for the regression model
+    template_vars['overall_rss'] = overall_rss
+
+    # Calculate ESS for the regression model
     yhats = np.dot(x_matrix, beta_vector) # estimates
 
-    yhat_mean = sum(yhats) / len(y_vector) # mean estimate
+    ys_mean = sum(ys) / len(ys) # mean estimate
 
-    template_vars['overall_ess'] = sum(map(lambda x: (x - yhat_mean)**2, yhats))
+    overall_ess = sum(map(lambda yhat: (yhat - ys_mean)**2, yhats))
+
+    template_vars['overall_ess'] = overall_ess
+
+    # Calculate F value for the regression model
+    k = 4
+    n = len(ys)
+
+    template_vars['overall_f'] = (overall_ess / (k - 1)) / (overall_rss / (n - k))
+
+    # Calculate F critical value for the regression model
+    template_vars['overall_f_crit'] = stats.f.ppf(0.95, k - 1, n - k)
 
     result = _render_template(template_vars)
 

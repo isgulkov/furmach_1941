@@ -42,10 +42,11 @@ $RSS = \sum_{i=1}^n (Y_i - \hat{Y}_i)^2 = {{ '%.1f' % overall_rss }};$
 
 $ESS = \sum_{i=1}^n (\hat{Y}_i - \overline{Y})^2 = {{ '%.1f' % overall_ess }};$
 
-$F_{крит.} = -1488;$
+$F_{крит.} = {{ '%.2f' % overall_f_crit }};$
+{% if overall_f > overall_f_crit %}
+$F = {{ '%.2f' % overall_f }} > {{ '%.2f' % overall_f_crit }} \Rightarrow H_0$ отвергается в пользу $H_1$, регрессия значима при $\alpha = 0.05$.{% else %}
+$F = {{ '%.2f' % overall_f }} \leq {{ '%.2f' % overall_f_crit }} \Rightarrow H_0$ принимается, регрессия не значима при $\alpha = 0.05$.{% endif %}
 
-$F = 1488 > -1488 \Rightarrow H_0$ отвергается в пользу $H_1$, регрессия значима при $\alpha = 0.05$.
-  
 *Проверим значимость коэффициентов по отдельности* при $\alpha = 0.05$.
  
 $H_{0i}: \beta_i = 0;$
