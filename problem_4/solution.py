@@ -32,8 +32,15 @@ def pr04_part1((x2s, x3s, x4s, ys, ), var_number):
 
     template_vars['beta_hats'] = beta_vector.tolist()
 
-    with open(template_path, mode='r') as f:
-        template = Template(f.read().decode('utf-8'))
+    # Compute RSS for the regression model
+    template_vars['overall_rss'] = sum(map(lambda x: x, residues))
+
+    # Compute ESS for the regression model
+    yhats = np.dot(x_matrix, beta_vector) # estimates
+
+    yhat_mean = sum(yhats) / len(y_vector) # mean estimate
+
+    template_vars['overall_ess'] = sum(map(lambda x: (x - yhat_mean)**2, yhats))
 
     result = _render_template(template_vars)
 

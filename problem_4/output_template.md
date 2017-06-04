@@ -32,17 +32,15 @@ $$
 $H_0: \beta_1 = \beta_2 = \beta_3 = \beta_4 = 0;$
 $H_1: \exists i \in \overline{1, 4} : \beta_i \neq 0.$
 
-По теореме **немытых хуйцов**:
-
 $F = \frac{\frac{ESS}{k-1}}{\frac{RSS}{n-k}} \sim F(k - 1, n - k)$, тогда
 
 $F > F_{крит.} = F_\alpha (k - 1, n - k) \Rightarrow H_0$ отвергается в пользу $H_1$.
 
 Посчитаем и получим:
 
-$RSS = \sum_{i=1}^n (Y_i - \hat{Y}_i)^2 = 1488;$
+$RSS = \sum_{i=1}^n (Y_i - \hat{Y}_i)^2 = {{ '%.1f' % overall_rss }};$
 
-$ESS = \sum_{i=1}^n (\hat{Y}_i - \overline{Y})^2 = -1488;$
+$ESS = \sum_{i=1}^n (\hat{Y}_i - \overline{Y})^2 = {{ '%.1f' % overall_ess }};$
 
 $F_{крит.} = -1488;$
 
