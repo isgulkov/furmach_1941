@@ -8,6 +8,8 @@ if __name__ == '__main__':
         print "Usage: python problem_4 [x], x - varik number"
         exit()
 
-    data = get_data_by_variant_number(int(argv[1]))
+    var_number = int(argv[1])
 
-    pr04_part1(data)
+    data = get_data_by_variant_number(var_number)
+
+    pr04_part1(data, var_number)
