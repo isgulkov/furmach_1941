@@ -10,14 +10,14 @@ $$
 	\vdots \\
 	y_{40}
 \end{pmatrix} = \begin{pmatrix}
+	1 & X_2^{(1)} & X_3^{(1)} & X_4^{(1)} \\
+	\vdots & \vdots & \vdots & \vdots \\
+	1 & X_2^{(40)} & X_3^{(40)} & X_4^{(40)} 
+\end{pmatrix} \begin{pmatrix}
 	\beta_1 \\
 	\beta_2 \\
 	\beta_3 \\
 	\beta_4 \\
-\end{pmatrix} \begin{pmatrix}
-	1 & X_2^{(1)} & X_3^{(1)} & X_4^{(1)} \\
-	\vdots & \vdots & \vdots & \vdots \\
-	1 & X_2^{(40)} & X_3^{(40)} & X_4^{(40)} 
 \end{pmatrix}.
 $$
   
