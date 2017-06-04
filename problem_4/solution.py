@@ -56,6 +56,21 @@ def pr04_part1((x2s, x3s, x4s, ys, ), var_number):
     # Calculate F critical value for the regression model
     template_vars['overall_f_crit'] = stats.f.ppf(0.95, k - 1, n - k)
 
+    # Calculate t critical value for individual coefficients
+    template_vars['coef_t_crit'] = stats.t.ppf(0.95, n - k)
+
+    # Calculate coefficient sigmas
+    # NOTE: copied straight from Drankow's repo. No slightest idea how any of this works, but the results match
+    chiselka = overall_rss / (n - k)
+    matrasik = np.linalg.inv(np.dot(x_matrix.transpose(), x_matrix))
+    huyasik = np.dot(chiselka, matrasik)
+    coef_variances = [huyasik[i][i] for i in xrange(4)]
+
+    coef_t_vals = [beta_vector[i] / coef_variances[i] ** 0.5 for i in xrange(4)]
+
+    # Calculate coefficient t values
+    template_vars['coef_t_vals'] = coef_t_vals
+
     result = _render_template(template_vars)
 
     print result.encode('utf-8')

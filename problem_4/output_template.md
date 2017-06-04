@@ -42,10 +42,10 @@ $RSS = \sum_{i=1}^n (Y_i - \hat{Y}_i)^2 = {{ '%.1f' % overall_rss }};$
 
 $ESS = \sum_{i=1}^n (\hat{Y}_i - \overline{Y})^2 = {{ '%.1f' % overall_ess }};$
 
-$F_{крит.} = {{ '%.2f' % overall_f_crit }};$
+$F_{крит.} = {{ '%.3f' % overall_f_crit }};$
 {% if overall_f > overall_f_crit %}
-$F = {{ '%.2f' % overall_f }} > {{ '%.2f' % overall_f_crit }} \Rightarrow H_0$ отвергается в пользу $H_1$, регрессия значима при $\alpha = 0.05$.{% else %}
-$F = {{ '%.2f' % overall_f }} \leq {{ '%.2f' % overall_f_crit }} \Rightarrow H_0$ принимается, регрессия не значима при $\alpha = 0.05$.{% endif %}
+$F = {{ '%.3f' % overall_f }} > {{ '%.3f' % overall_f_crit }} \Rightarrow H_0$ отвергается в пользу $H_1$, регрессия значима при $\alpha = 0.05$.{% else %}
+$F = {{ '%.3f' % overall_f }} \leq {{ '%.3f' % overall_f_crit }} \Rightarrow H_0$ принимается, регрессия не значима при $\alpha = 0.05$.{% endif %}
 
 *Проверим значимость коэффициентов по отдельности* при $\alpha = 0.05$.
  
@@ -58,11 +58,10 @@ $t_i = \frac{\hat{\beta_i}}{\sqrt{\hat{\sigma^2}(\beta_i)}} \sim t(n - k)$, то
 
 $t_i > t_{крит.} = t_\alpha (n - k) \Rightarrow H_0$ отвергается в пользу $H_1$.
 
-$t_{крит.} = 14.88;$
-$t_1 = -14.88 < t_{крит.} \Rightarrow$ коэффициент *незначим* при $\alpha = 0.05$;
-$t_2 = -14.88 < t_{крит.} \Rightarrow$ коэффициент *незначим* при $\alpha = 0.05$;
-$t_3 = -14.88 < t_{крит.} \Rightarrow$ коэффициент *незначим* при $\alpha = 0.05$;
-$t_4 = 1488 > t_{крит.} \Rightarrow$ коэффициент *значим* при $\alpha = 0.05$.
+$t_{крит.} = {{ '%.3f' % coef_t_crit }};$
+{% for i in range(4) %}{% if coef_t_vals[i] > coef_t_crit %}
+$t_{{ i + 1 }} = {{ '%.3f' % coef_t_vals[i] }} > {{ '%.3f' % coef_t_crit }} \Rightarrow$ коэффициент *значим* при $\alpha = 0.05$;{% else %}
+$t_{{ i + 1 }} = {{ '%.3f' % coef_t_vals[i] }} \leq {{ '%.3f' % coef_t_crit }} \Rightarrow$ коэффициент *незначим* при $\alpha = 0.05$;{% endif %}{% endfor %}
 
 *Проверим совместную значимость коэффициентов $\beta_3$ и $\beta_4$* при $\alpha = 0.05$.
  
