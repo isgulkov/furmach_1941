@@ -71,6 +71,25 @@ def pr04_part1((x2s, x3s, x4s, ys, ), var_number):
     # Calculate coefficient t values
     template_vars['coef_t_vals'] = coef_t_vals
 
+    # Calculate restricted RSS with \beta_3 and \beta_4 coefs set to zero
+    restricted34_x_matrix = np.array([
+        np.ones(len(x2s)),
+        x2s,
+        ]).transpose()
+
+    restricted34_beta_vector = beta_vector[:2]
+
+    restricted34_yhats = np.dot(restricted34_x_matrix, restricted34_beta_vector)
+
+    restricted34_rss = sum([(restricted34_yhats[i] - ys[i])**2 for i in xrange(len(ys))])
+
+    template_vars['restricted34_rss'] = restricted34_rss
+
+    # Calculate restricted F value and F critical calue
+    template_vars['restricted34_f'] = ((restricted34_rss - overall_rss) / 2) / (overall_rss / (n - k))
+
+    template_vars['restricted34_f_crit'] = stats.f.ppf(0.95, 2, n - k)
+
     result = _render_template(template_vars)
 
     print result.encode('utf-8')

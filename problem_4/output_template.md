@@ -72,13 +72,14 @@ $F=\frac{\frac{RSS_r-RSS_{ur}}{q}}{\frac{RSS_{ur}}{n - k}}$ ~ $F_{q, n - k}$, г
 
 $RSS_{ur}$ – RSS полученной регрессионной модели, $RSS_{r}$ – RSS модели при выполнении условия $H_0$ ($\widehat{Y_{34}} = \hat{\beta_1} + \hat{\beta_2} X_2$).
 
-$RSS_{ur} = \sum_{i=1}^n (Y_i - \hat{Y}_i)^2 = 1488;$
+$RSS_{ur} = \sum_{i=1}^n (Y_i - \hat{Y}_i)^2 = {{ '%.3f' % overall_rss }};$
 
-$RSS_{ur} = \sum_{i=1}^n (Y_i - \widehat{Y_{34}}_i)^2 = 1488;$
+$RSS_{r} = \sum_{i=1}^n (Y_i - \widehat{Y_{34}}_i)^2 = {{ '%.3f' % restricted34_rss }};$
 
-$F_{крит.} = -1488;$
-
-$F = 1488 > -1488 \Rightarrow H_0$ отвергается в пользу $H_1$, коэффициенты совместно значимы при $\alpha = 0.05$.
+$F_{крит.} = {{ '%.3f' % restricted34_f_crit }};$
+{% if restricted34_f > restricted34_f_crit %}
+$F = {{ '%.3f' % restricted34_f }} > {{ '%.3f' % restricted34_f_crit }} \Rightarrow H_0$ отвергается в пользу $H_1$, коэффициенты совместно значимы при $\alpha = 0.05$.{% else %}
+$F = {{ '%.3f' % restricted34_f }} \leq {{ '%.3f' % restricted34_f_crit }} \Rightarrow H_0$ принимается, коэффициенты совместно незначимы при $\alpha = 0.05$.{% endif %}
 
 *Построим таблицу корреляции объясняющих переменных.*
   
