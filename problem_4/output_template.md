@@ -52,8 +52,6 @@ $F = {{ '%.3f' % overall_f }} \leq {{ '%.3f' % overall_f_crit }} \Rightarrow H_0
 $H_{0i}: \beta_i = 0;$
 $H_{1i}: \beta_i \neq 0.$
 
-По теореме **сочной залупы**:
-
 $t_i = \frac{\hat{\beta_i}}{\sqrt{\hat{\sigma^2}(\beta_i)}} \sim t(n - k)$, тогда
 
 $t_i > t_{крит.} = t_\alpha (n - k) \Rightarrow H_0$ отвергается в пользу $H_1$.
