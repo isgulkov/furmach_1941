@@ -99,14 +99,51 @@ def pr04((x2s, x3s, x4s, ys, ), var_number):
 
     template_vars['xs_corr'] = xs_corr
 
+    # Draw graphs for ridge regression coefficients
+    ls = []
+    betas_ridge = ([], [], [], [], )
+
+    for l in np.arange(0.0, 2.0001, 0.1):
+        ls.append(l)
+
+        beta_ridge_vector = np.dot(
+            np.linalg.inv(
+                np.dot(
+                    x_matrix.transpose(),
+                    x_matrix
+                    )
+                + l * np.identity(4)
+                ),
+            np.dot(
+                x_matrix.transpose(),
+                y_vector
+                )
+            )
+
+        for i in xrange(4):
+            betas_ridge[i].append(beta_ridge_vector[i])
+
+    fig = plt.figure(figsize=(14, 10, ))
+    gs = gridspec.GridSpec(2, 2, width_ratios=[1, 1], height_ratios=[1, 1])
+
+    fig.suptitle("Ridge regression coeffitients with respect to $\\lambda$")
+
+    for i in xrange(4):
+        fig.add_subplot(gs[i / 2, i % 2])
+
+        plt.plot(ls, betas_ridge[i], 'r', label="$\\widehat{\\beta_%d}_{ridge}$" % (i + 1, ))
+        plt.xticks(ls, rotation='vertical')
+
+        plt.legend()
+
+        # plt.tight_layout()
+
+    plt.savefig("~figure.png")
+
+    system("open ./~figure.png")
+
+    template_vars['figure_path'] = "~figure.png"
+
     result = _render_template(template_vars)
 
     print result.encode('utf-8')
-
-
-    # plt.scatter(x3s, ys, s=5.0)
-
-    # plt.legend()
-    # plt.savefig("~figure.png")
-
-    # system("open ./~figure.png")
