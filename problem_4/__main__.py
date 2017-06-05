@@ -1,6 +1,6 @@
 from sys import argv, exit
 
-from solution import pr04_part1
+from solution import pr04
 from variants import get_data_by_variant_number
 
 if __name__ == '__main__':
@@ -12,4 +12,4 @@ if __name__ == '__main__':
 
     data = get_data_by_variant_number(var_number)
 
-    pr04_part1(data, var_number)
+    pr04(data, var_number)

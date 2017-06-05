@@ -14,7 +14,7 @@ def _render_template(template_vars):
 
     return template.render(**template_vars)
 
-def pr04_part1((x2s, x3s, x4s, ys, ), var_number):
+def pr04((x2s, x3s, x4s, ys, ), var_number):
     y_vector = np.array(ys)
 
     x_matrix = np.array([
