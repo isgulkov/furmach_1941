@@ -90,6 +90,15 @@ def pr04_part1((x2s, x3s, x4s, ys, ), var_number):
 
     template_vars['restricted34_f_crit'] = stats.f.ppf(0.95, 2, n - k)
 
+    # Calculate correlations for x's
+    xs_corr = {
+        '23': stats.pearsonr(x2s, x3s)[0],
+        '24': stats.pearsonr(x2s, x4s)[0],
+        '34': stats.pearsonr(x3s, x4s)[0],
+        }
+
+    template_vars['xs_corr'] = xs_corr
+
     result = _render_template(template_vars)
 
     print result.encode('utf-8')
