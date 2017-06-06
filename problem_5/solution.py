@@ -15,14 +15,29 @@ def _render_template(template_vars):
     return template.render(**template_vars)
 
 def pr05((bal, brick, d2, d3, d4, dist, floor, price, totsp, walk, ), var_number):
-    print bal[:8]
-    print brick[:8]
-    print d2[:8]
-    print d3[:8]
-    print d4[:8]
-    print dist[:8]
-    print floor[:8]
-    print price[:8]
-    print totsp[:8]
-    print walk[:8]
+    template_vars = {}
+
+    template_vars['var_number'] = var_number
+
+    y_vector = np.array(price)
+
+    x_matrix = np.array([
+        np.ones(len(price)),
+        totsp,
+        dist,
+        walk,
+        d2,
+        d3,
+        d4,
+        bal,
+        brick,
+        floor,
+        ]).transpose()
+
+    # Linear model
+    beta_vector, residues, rank, s = np.linalg.lstsq(x_matrix, y_vector)
+
+    template_vars['linear_betas'] = beta_vector
+
+    print _render_template(template_vars).encode('utf-8')
 
