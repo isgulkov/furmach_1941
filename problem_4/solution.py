@@ -147,3 +147,4 @@ def pr04((x2s, x3s, x4s, ys, ), var_number):
     result = _render_template(template_vars)
 
     print result.encode('utf-8')
+
