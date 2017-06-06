@@ -34,7 +34,7 @@ $H_1: \exists i \in \overline{1, 4} : \beta_i \neq 0.$
 
 $F = \frac{\frac{ESS}{k-1}}{\frac{RSS}{n-k}} \sim F(k - 1, n - k)$, тогда
 
-$F > F_{крит.} = F_\alpha (k - 1, n - k) \Rightarrow H_0$ отвергается в пользу $H_1$.
+$F > F_{крит.} = F_{1-\alpha} (k - 1, n - k) \Rightarrow H_0$ отвергается в пользу $H_1$.
 
 Посчитаем и получим:
 
@@ -54,7 +54,7 @@ $H_{1i}: \beta_i \neq 0.$
 
 $t_i = \frac{\hat{\beta_i}}{\sqrt{\hat{\sigma^2}(\beta_i)}} \sim t(n - k)$, тогда
 
-$t_i > t_{крит.} = t_\alpha (n - k) \Rightarrow H_0$ отвергается в пользу $H_1$.
+$t_i > t_{крит.} = t_{1-\alpha} (n - k) \Rightarrow H_0$ отвергается в пользу $H_1$.
 
 $t_{крит.} = {{ '%.3f' % coef_t_crit }};$
 {% for i in range(4) %}{% if coef_t_vals[i] > coef_t_crit %}
