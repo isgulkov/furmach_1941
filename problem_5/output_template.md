@@ -42,7 +42,7 @@ $RSS = 17.806$, $R^2_{adj} = 0.82$.
 
 ### Логарифмическая модель
 
-В отличие от предыдущей модели, вместо **totsp** и **dist** использованы $\ln(totsp)$ и $\ln(dist)$ соответственно:
+В отличие от предыдущей модели, вместо $totsp$ и $dist$ использованы $\ln(totsp)$ и $\ln(dist)$ соответственно:
 
 $$
 \ln(price) = \beta_1 + \ln(totsp) + \ln(dist) + \beta_4 walk + \beta_5 d2 + \beta_6 d3 \\ + \beta_7 d4 + \beta_8 bal + \beta_9 brick + \beta_{10} floor + \epsilon.
