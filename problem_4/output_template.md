@@ -29,8 +29,8 @@ $$
 
 *Проверим значимость регрессии в целом* при $\alpha = 0.05$.
 
-$H_0: \beta_1 = \beta_2 = \beta_3 = \beta_4 = 0;$
-$H_1: \exists i \in \overline{1, 4} : \beta_i \neq 0.$
+$H_0: \beta_2 = \beta_3 = \beta_4 = 0;$
+$H_1: \exists i \in \overline{2, 4} : \beta_i \neq 0.$
 
 $F = \frac{\frac{ESS}{k-1}}{\frac{RSS}{n-k}} \sim F(k - 1, n - k)$, тогда
 
