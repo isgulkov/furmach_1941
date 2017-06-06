@@ -14,9 +14,11 @@ def _render_template(template_vars):
 
     return template.render(**template_vars)
 
-def _save_and_show_plot(price, x_matrix, beta_vector, filename="~figure.png", yvar_name="price"):
+def _save_and_show_plot(price, x_matrix, beta_vector, filename="~figure.png", yvar_name="price", model_id=""):
     fig = plt.figure(figsize=(10, 5, ))
     gs = gridspec.GridSpec(1, 2, width_ratios=[1, 1])
+
+    fig.suptitle(model_id)
 
     price_hats = np.dot(x_matrix, beta_vector)
 
@@ -33,7 +35,6 @@ def _save_and_show_plot(price, x_matrix, beta_vector, filename="~figure.png", yv
     plt.title("Residues")
     plt.xlabel("$%s - \\widehat{%s}$" % (yvar_name, yvar_name, ))
 
-    plt.tight_layout()
     plt.savefig(filename, dpi=300)
 
     system("open ./%s" % (filename, ))
@@ -76,7 +77,7 @@ def pr05((bal, brick, d2, d3, d4, dist, floor, price, totsp, walk, ), var_number
 
     template_vars['linear_betas'] = beta_vector
 
-    _save_and_show_plot(price, x_matrix, beta_vector, filename="~figure01.png")
+    _save_and_show_plot(price, x_matrix, beta_vector, filename="~figure01.png", model_id="Linear model")
 
     template_vars['linear_plot_url'] = "~figure01.png"
 
@@ -90,7 +91,8 @@ def pr05((bal, brick, d2, d3, d4, dist, floor, price, totsp, walk, ), var_number
 
     template_vars['semilog_betas'] = beta_vector
 
-    _save_and_show_plot(np.log(price), x_matrix, beta_vector, filename="~figure02.png", yvar_name="\ln{price}")
+    _save_and_show_plot(np.log(price), x_matrix, beta_vector, filename="~figure02.png", yvar_name="\ln{price}",
+        model_id="Semilog model")
 
     template_vars['semilog_plot_url'] = "~figure02.png"
 
@@ -115,7 +117,8 @@ def pr05((bal, brick, d2, d3, d4, dist, floor, price, totsp, walk, ), var_number
 
     template_vars['log_betas'] = beta_vector
 
-    _save_and_show_plot(np.log(price), x_matrix, beta_vector, filename="~figure03.png", yvar_name="\ln{price}")
+    _save_and_show_plot(np.log(price), x_matrix, beta_vector, filename="~figure03.png", yvar_name="\ln{price}",
+        model_id="Log model")
 
     template_vars['log_plot_url'] = "~figure03.png"
 
