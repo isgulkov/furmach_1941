@@ -23,18 +23,14 @@ def pr07((xs, ys, ), var_number):
 
     data = np.column_stack((xs, ys, )).astype('float')
 
-    fig = plt.figure(figsize=(6, 18, ))
-    gs = gridspec.GridSpec(3, 1, height_ratios=[1, 1, 1])
-
-    plot_no = 0
+    figure_filenames = []
 
     for n_clusters in [2, 3, 4]:
         centroids, __ = vq.kmeans(data, n_clusters)
 
         idx, __ = vq.vq(data, centroids)
 
-        fig.add_subplot(gs[plot_no])
-        plot_no += 1
+        plt.figure()
 
         for i in xrange(n_clusters):
             plt.plot(
@@ -48,13 +44,16 @@ def pr07((xs, ys, ), var_number):
         plt.plot(centroids[:,0], centroids[:,1], '*', color='black', markersize=10)
 
         plt.title("%d clusters" % (n_clusters, ))
+        plt.tight_layout()
 
-    plt.tight_layout()
-    plt.savefig("~figure.png", dpi=300)
+        figure_filenames.append("~figure%02d.png" % (len(figure_filenames), ))
 
-    system("open ./~figure.png")
+        plt.savefig(figure_filenames[-1], dpi=300)
 
-    template_vars['figure_url'] = "~figure.png"
+        system("open ./%s" % figure_filenames[-1])
+
+
+    template_vars['figure_urls'] = figure_filenames
 
     # print _render_template(template_vars).encode('utf-8')
 
