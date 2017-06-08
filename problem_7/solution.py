@@ -55,5 +55,5 @@ def pr07((xs, ys, ), var_number):
 
     template_vars['figure_urls'] = figure_filenames
 
-    # print _render_template(template_vars).encode('utf-8')
+    print _render_template(template_vars).encode('utf-8')
 
