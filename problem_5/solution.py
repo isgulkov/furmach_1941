@@ -125,6 +125,20 @@ def pr05((bal, brick, d2, d3, d4, dist, floor, price, totsp, walk, ), var_number
     template_vars['log_rss'] = residues
     template_vars['log_r2'] = _calculate_r2_adj(y_vector, x_matrix, beta_vector)
 
+    example_xs = np.array([
+        1,
+        np.log(40),
+        np.log(10),
+        1,
+        0,
+        0,
+        0,
+        1,
+        1,
+        0
+        ])
+
+    template_vars['example_forecast'] = np.exp(np.dot(beta_vector, example_xs))
 
     print _render_template(template_vars).encode('utf-8')
 
