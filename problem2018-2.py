@@ -159,7 +159,7 @@ def display_results(prg, sizes=(100, 10000, )):
 
         fig.add_subplot(gs[i])
 
-        plt.hist(xs)
+        plt.hist(xs, bins=10, range=prg.range)
         plt.title("$n = %d$" % n)
 
         xs_centered = centered(xs, prg.range)
