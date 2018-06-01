@@ -32,101 +32,134 @@ class LCG:
 
         return old
 
+    def get_sample(self, n, first=False):
+        if first:
+            saved_state = self._current
+            self.reset()
 
-def annotate_max_diff(xs, fs, gs, g_is_step=True, s_format="$%.4f$"):
-    x, f, g = xs[0], fs[0], gs[0]
+        sample = [self.next() for _ in xrange(n)]
 
-    for i, (xx, fx, gx) in enumerate(zip(xs, fs, gs)[1:]):
-        if abs(fx - gx) > abs(f - g):
-            x, f, g = xx, fx, gx
+        if first:
+            self._current = saved_state
 
-        if g_is_step and abs(fx - gs[i]) > abs(f - g):
-            x, f, g = xx, fx, gs[i]
-
-    y_text = (f + g) / 2.0
-
-    text_on_the_right = x < 0.5
-
-    if text_on_the_right:
-        x_text = x + 0.1
-    else:
-        x_text = x - 0.1
-
-    for is_top_one in (True, False):
-        plt.annotate(
-            s=s_format % abs(f - g),
-            xy=(x, is_top_one and f or g),
-            xytext=(x_text, y_text),
-            arrowprops=dict(arrowstyle='->', alpha=0.5, clip_on=False),
-            ha=text_on_the_right and 'left' or 'right',
-            va='center',
-            alpha=is_top_one and 0.75 or 0.0)
-
-    plt.plot([x, x], [f, g], 'b', alpha=0.25)
-
-    plt.plot([x], [f], 'r.', ms=7.5)
-    plt.plot([x], [g], 'b.', ms=7.5)
+        return sample
 
 
-def draw_edf_vs_r01(xs):
-    xs = sorted(xs)
+class SampleAnalysis:
+    def _annotate_max_diff(self, ax, xs, fs, gs, g_is_step=True, s_format="$%.4f$"):
+        x, f, g = xs[0], fs[0], gs[0]
 
-    edf_values = [float(i) / len(xs) for i in xrange(1, len(xs) + 1)]
+        for i, (xx, fx, gx) in enumerate(zip(xs, fs, gs)[1:]):
+            if abs(fx - gx) > abs(f - g):
+                x, f, g = xx, fx, gx
 
-    cdf_values = [max(0.0, min(1.0, x)) for x in xs]
+            if g_is_step and abs(fx - gs[i]) > abs(f - g):
+                x, f, g = xx, fx, gs[i]
 
-    if xs[0] > 0.0:
-        for a in (xs, edf_values, cdf_values):
-            a.insert(0, 0.0)
+        y_text = (f + g) / 2.0
 
-    if xs[-1] < 1.0:
-        for a in (xs, edf_values, cdf_values):
-            a.append(1.0)
+        if x < 0.5:
+            x_text = x + 0.1
+            ha_text = 'left'
+        else:
+            x_text = x - 0.1
+            ha_text = 'right'
 
-    plt.xlim(
-        min(0.0, xs[0]),
-        max(1.0, xs[-1])
-        )
+        def draw_annotation(_y, _alpha):
+            ax.annotate(
+                s=s_format % abs(f - g),
+                xy=(x, _y),
+                xytext=(x_text, y_text),
+                arrowprops=dict(arrowstyle='->', alpha=0.5, clip_on=False),
+                ha=ha_text,
+                va='center',
+                alpha=_alpha)
 
-    plt.ylim(
-        -0.01 if xs[0] < 0.0 else 0.0,
-        1.01 if xs[-1] > 1.0 else 1.0
-        )
-    
-    plt.plot(xs, cdf_values, 'r', label="$F_{R(0; 1)}$")
+        draw_annotation(f, 0.75)
+        draw_annotation(g, 0.0)
 
-    plt.step(xs, edf_values, 'b', where='post', label="EDF")
+        ax.plot([x, x], [f, g], 'b', alpha=0.25)
 
-    annotate_max_diff(xs, cdf_values, edf_values, s_format="$D_n = %.4f$")
-
-    plt.legend(loc='best')
-
-
-def draw_r01_kolm_smir(xs, alpha=0.05):
-    ks_stat, p_value = kstest(xs, lambda x: x)
-
-    reject = p_value < alpha
-
-    cur_axes = plt.gca()
-    cur_axes.axes.get_xaxis().set_visible(False)
-    cur_axes.axes.get_yaxis().set_visible(False)
-
-    plt.annotate(
-        s="  $D_n = %.4f$, $p = %.2f$ (%s at $\\alpha=%d\\%%$)" % (ks_stat, p_value, reject and "no fit" or "fits", int(alpha * 100), ),
-        xy=(0, 0),
-        xytext=(0, 0.5),
-        textcoords='axes fraction',
-        ha='left',
-        va='center')
+        ax.plot([x], [f], 'r.', ms=7.5)
+        ax.plot([x], [g], 'b.', ms=7.5)
 
 
-def scaled(xs, (x_min, x_max)):
-    x_max = float(x_max)
+    def _draw_edf_vs_r01(self, ax):
+        xs = sorted(self._xs_scaled)
 
-    return [(x - x_min) / x_max for x in xs]
+        edf_values = [float(i) / len(xs) for i in xrange(1, len(xs) + 1)]
+
+        cdf_values = [max(0.0, min(1.0, x)) for x in xs]
+
+        if xs[0] > 0.0:
+            for a in (xs, edf_values, cdf_values):
+                a.insert(0, 0.0)
+
+        if xs[-1] < 1.0:
+            for a in (xs, edf_values, cdf_values):
+                a.append(1.0)
+
+        ax.set_xlim(
+            min(0.0, xs[0]),
+            max(1.0, xs[-1])
+            )
+
+        ax.set_ylim(
+            -0.01 if xs[0] < 0.0 else 0.0,
+            1.01 if xs[-1] > 1.0 else 1.0
+            )
+
+        ax.plot(xs, cdf_values, 'r', label="$F_{R(0; 1)}$")
+
+        ax.step(xs, edf_values, 'b', where='post', label="EDF")
+
+        self._annotate_max_diff(ax, xs, cdf_values, edf_values, s_format="$D_n = %.4f$")
+
+        ax.legend(loc='best')
+
+    def _draw_r01_kolm_smir(self, ax):
+        ks_stat, p_value = kstest(self._xs_scaled, lambda x: x)
+
+        reject = p_value < self.alpha
+
+        ax.get_xaxis().set_visible(False)
+        ax.get_yaxis().set_visible(False)
+
+        ax.annotate(
+            s="  $D_n = %.4f$, $p = %.2f$ (%s at $\\alpha=%d\\%%$)" % (ks_stat, p_value, reject and "no fit" or "fits", int(self.alpha * 100), ),
+            xy=(0, 0),
+            xytext=(0, 0.5),
+            textcoords='axes fraction',
+            ha='left',
+            va='center')
+
+    @property
+    def _xs_scaled(self):
+        # TODO: don't scale here!
+        x_max = 10000.0 #float(max(self.xs))
+        x_min = 0 #min(self.xs)
+
+        return [(x - x_min) / (x_max - x_min) for x in self.xs]
+
+    def is_positive(self):
+        return kstest(self._xs_scaled, lambda x: x)[1] < self.alpha
+
+    def __init__(self, xs, description="", alpha=0.05):
+        self.xs = xs
+        self.description = description
+        self.alpha = alpha
+
+    def draw_on(self, (ax, bx, cx)):
+        # TODO: find the range somewhere
+        ax.hist(self.xs, bins=10, range=(0, 10000))
+        ax.set_title(self.description)
+
+        self._draw_edf_vs_r01(bx)
+
+        self._draw_r01_kolm_smir(cx)
 
 
-def display_results(samples, prg, ):
+def display_results(prg, sizes=(100, 10000), find_examples=True):
     plt.rcParams['font.family'] = 'serif'
 
     plt.rcParams['xtick.labelsize'] = 'x-small'
@@ -134,29 +167,38 @@ def display_results(samples, prg, ):
     plt.rcParams['ytick.labelsize'] = 'x-small'
     plt.rcParams['ytick.color'] = '#545454'
 
-    fig = plt.figure(figsize=(5 * len(samples), 8))
+    analyses = [
+        SampleAnalysis(
+            prg.get_sample(n, first=True),
+            "First ${:d}$ states".format(n)
+        ) for n in sizes
+    ]
+
+    if not analyses[0].is_positive():
+        analyses.append(
+            SampleAnalysis(
+                prg.get_sample(100, first=True) * 5,
+                "First $100$ states 5 times over"
+            )
+        )
+
+    if analyses[-1].is_positive():
+        pass # TODO: !
+
+    fig = plt.figure(figsize=(5 * len(analyses), 8))
 
     fig.suptitle("Fitness of $R(0; 1)$ to samples from %s" % prg.description)
 
-    gs = gridspec.GridSpec(3, len(samples), height_ratios=[6, 6, 1])
+    gs = gridspec.GridSpec(3, len(analyses), height_ratios=[6, 6, 1])
 
-    for i, (xs, description) in enumerate(samples):
-        fig.add_subplot(gs[i])
+    for i, analysis in enumerate(analyses):
+        axes = tuple(
+            fig.add_subplot(
+                gs[i + j_row * len(analyses)]
+            ) for j_row in xrange(3)
+        )
 
-        plt.hist(xs, bins=10, range=prg.range)
-        plt.title(description)
-
-        xs_scaled = scaled(xs, prg.range)
-
-        fig.add_subplot(gs[i + len(samples)])
-
-        draw_edf_vs_r01(xs_scaled)
-
-        fig.add_subplot(gs[i + 2 * len(samples)])
-
-        draw_r01_kolm_smir(xs_scaled)
-
-    # plt.tight_layout(pad=2.5, rect=[0.0, 0.0, 1.0, 0.97])
+        analysis.draw_on(axes)
 
     plt.savefig("~figure.png", dpi=300)
     system("open ./~figure.png")
@@ -165,20 +207,7 @@ def display_results(samples, prg, ):
 if __name__ == '__main__':
     prg = LCG(2456)
 
-    samples = []
-
-    for n in (100, 10000):
-        samples.append(
-            ([prg.next() for _ in xrange(n)], "First ${:d}$ states".format(n))
-            )
-
-        prg.reset()
-
-    samples.append(
-        ([prg.next() for _ in xrange(100)] * 5, "First $100$ states 5 times over")
-        )
-
-    display_results(samples, prg)
+    display_results(prg, (100, 10000))
 
     # display_results(LCG(110, a=10, b=570, m=290))
 
