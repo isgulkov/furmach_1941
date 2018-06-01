@@ -68,16 +68,39 @@ def annotate_max_diff(xs, fs, gs, g_is_step=True, s_format="$%.4f$"):
     plt.plot([x], [g], 'b.', ms=7.5)
 
 
-def draw_ecdf_vs_r01(xs):
-    plot_xs = [0.0] + sorted(xs) + [1.0]
+def draw_edf_vs_r01(xs):
+    xs = sorted(xs)
+
+    edf_values = [float(i) / len(xs) for i in xrange(1, len(xs) + 1)]
+
+    cdf_values = [max(0.0, min(1.0, x)) for x in xs]
+
+    if xs[0] > 0.0:
+        for a in (xs, edf_values, cdf_values):
+            a.insert(0, 0.0)
+
+    if xs[-1] < 1.0:
+        for a in (xs, edf_values, cdf_values):
+            a.append(1.0)
+
+    plt.xlim(
+        min(0.0, xs[0]),
+        max(1.0, xs[-1])
+        )
+
+    plt.ylim(
+        -0.01 if xs[0] < 0.0 else 0.0,
+        1.01 if xs[-1] > 1.0 else 1.0
+        )
     
-    plt.plot(plot_xs, plot_xs, 'r', label="$F_{R(0; 1)}$")
+    plt.plot(xs, cdf_values, 'r', label="$F_{R(0; 1)}$")
 
-    edf_values = [0.0] + [float(i) / len(xs) for i in xrange(1, len(xs))] + [1.0, 1.0]
+    print len(xs), len(edf_values)
+    print edf_values[-5:]
 
-    plt.step(plot_xs, edf_values, 'b', where='post', label="EDF")
+    plt.step(xs, edf_values, 'b', where='post', label="EDF")
 
-    annotate_max_diff(plot_xs, plot_xs, edf_values, s_format="$D_n = %.4f$")
+    annotate_max_diff(xs, cdf_values, edf_values, s_format="$D_n = %.4f$")
 
     plt.legend(loc='best')
 
