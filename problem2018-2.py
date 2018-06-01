@@ -6,74 +6,42 @@ from os import system
 
 class LCG:
     def __init__(self, init, a=113, b=10, m=10000):
-        self.a, self.b, self.m = a, b, m
+        self._a, self._b, self._m = a, b, m
 
         if init >= m:
             raise ValueError("Initial state can't be greater than `m`")
 
-        self.init = init
-        self.current = init
+        self._init = init
+        self._current = init
 
     @property
     def description(self):
-        return "$LCG(a=%d, b=%d, m=%d, z_0=%d)$" % (self.a, self.b, self.m, self.init, )
+        return "$LCG(a=%d, b=%d, m=%d, z_0=%d)$" % (self._a, self._b, self._m, self._init, )
 
     @property
     def range(self):
-        return (0, self.m)
+        return (0, self._m)
 
     def reset(self):
-        self.current = self.init
+        self._current = self._init
 
     def next(self):
-        old = self.current
+        old = self._current
 
-        self.current = (self.a * self.current + self.b) % self.m
+        self._current = (self._a * self._current + self._b) % self._m
 
         return old
 
 
-def double_every(xs):
-    xxs = []
+def annotate_max_diff(xs, fs, gs, g_is_step=True, s_format="$%.4f$"):
+    x, f, g = xs[0], fs[0], gs[0]
 
-    for x in xs:
-        xxs.append(x)
-        xxs.append(x)
+    for i, (xx, fx, gx) in enumerate(zip(xs, fs, gs)[1:]):
+        if abs(fx - gx) > abs(f - g):
+            x, f, g = xx, fx, gx
 
-    return xxs
-
-
-def get_max_diff(one, another):
-    i_max_diff, max_diff = 0, abs(one[0] - another[0])
-
-    for i, (a, b) in enumerate(zip(one, another)):
-        diff = abs(a - b)
-
-        if abs(a - b) > max_diff:
-            i_max_diff, max_diff = i, a, b
-
-    return i
-
-
-def annotate_max_diff(xs, fs, gs, f_is_step=False, g_is_step=True, s_format="$%.4f$"):
-    if f_is_step or g_is_step:
-        xs = double_every(xs)[1:]
-
-        if f_is_step:
-            fs = double_every(fs)[:-1]
-        else:
-            fs = double_every(fs)[1:]
-
-        if g_is_step:
-            gs = double_every(gs)[:-1]
-        else:
-            gs = double_every(gs)[1:]
-
-    i_md, md = max(enumerate(abs(f - g) for f, g in zip(fs, gs)), key=lambda (i, x): x)
-
-    x = xs[i_md]
-    f = fs[i_md]
-    g = gs[i_md]
+        if g_is_step and abs(fx - gs[i]) > abs(f - g):
+            x, f, g = xx, fx, gs[i]
 
     y_text = (f + g) / 2.0
 
@@ -86,7 +54,7 @@ def annotate_max_diff(xs, fs, gs, f_is_step=False, g_is_step=True, s_format="$%.
 
     for is_top_one in (True, False):
         plt.annotate(
-            s=s_format % md,
+            s=s_format % abs(f - g),
             xy=(x, is_top_one and f or g),
             xytext=(x_text, y_text),
             arrowprops=dict(arrowstyle='->', alpha=0.5, clip_on=False),
