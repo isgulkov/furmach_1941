@@ -95,9 +95,6 @@ def draw_edf_vs_r01(xs):
     
     plt.plot(xs, cdf_values, 'r', label="$F_{R(0; 1)}$")
 
-    print len(xs), len(edf_values)
-    print edf_values[-5:]
-
     plt.step(xs, edf_values, 'b', where='post', label="EDF")
 
     annotate_max_diff(xs, cdf_values, edf_values, s_format="$D_n = %.4f$")
@@ -115,7 +112,7 @@ def draw_r01_kolm_smir(xs, alpha=0.05):
     cur_axes.axes.get_yaxis().set_visible(False)
 
     plt.annotate(
-        s="  $D_n = %.4f$, $p = %.2f$ (%s at $\\alpha=%d\\%%$)" % (ks_stat, p_value, reject and "doesn't fit" or "fits", int(alpha * 100), ),
+        s="  $D_n = %.4f$, $p = %.2f$ (%s at $\\alpha=%d\\%%$)" % (ks_stat, p_value, reject and "no fit" or "fits", int(alpha * 100), ),
         xy=(0, 0),
         xytext=(0, 0.5),
         textcoords='axes fraction',
@@ -123,13 +120,13 @@ def draw_r01_kolm_smir(xs, alpha=0.05):
         va='center')
 
 
-def centered(xs, (x_min, x_max)):
+def scaled(xs, (x_min, x_max)):
     x_max = float(x_max)
 
     return [(x - x_min) / x_max for x in xs]
 
 
-def display_results(prg, sizes=(100, 10000, )):
+def display_results(samples, prg, ):
     plt.rcParams['font.family'] = 'serif'
 
     plt.rcParams['xtick.labelsize'] = 'x-small'
@@ -137,31 +134,27 @@ def display_results(prg, sizes=(100, 10000, )):
     plt.rcParams['ytick.labelsize'] = 'x-small'
     plt.rcParams['ytick.color'] = '#545454'
 
-    fig = plt.figure(figsize=(6 * len(sizes), 8))
+    fig = plt.figure(figsize=(5 * len(samples), 8))
 
-    fig.suptitle("Fitness of $R(0; 1)$ to first $n$ states of %s" % prg.description)
+    fig.suptitle("Fitness of $R(0; 1)$ to samples from %s" % prg.description)
 
-    gs = gridspec.GridSpec(3, len(sizes), height_ratios=[6, 6, 1])
+    gs = gridspec.GridSpec(3, len(samples), height_ratios=[6, 6, 1])
 
-    for i, n in enumerate(sizes):
-        prg.reset()
-
-        xs = [prg.next() for _ in xrange(n)]
-
+    for i, (xs, description) in enumerate(samples):
         fig.add_subplot(gs[i])
 
         plt.hist(xs, bins=10, range=prg.range)
-        plt.title("$n = %d$" % n)
+        plt.title(description)
 
-        xs_centered = centered(xs, prg.range)
+        xs_scaled = scaled(xs, prg.range)
 
-        fig.add_subplot(gs[i + len(sizes)])
+        fig.add_subplot(gs[i + len(samples)])
 
-        draw_ecdf_vs_r01(xs_centered)
+        draw_edf_vs_r01(xs_scaled)
 
-        fig.add_subplot(gs[i + 2 * len(sizes)])
+        fig.add_subplot(gs[i + 2 * len(samples)])
 
-        draw_r01_kolm_smir(xs_centered)
+        draw_r01_kolm_smir(xs_scaled)
 
     # plt.tight_layout(pad=2.5, rect=[0.0, 0.0, 1.0, 0.97])
 
@@ -170,8 +163,22 @@ def display_results(prg, sizes=(100, 10000, )):
 
 
 if __name__ == '__main__':
+    prg = LCG(2456)
 
-    display_results(LCG(2456), sizes=(100, 10000))
+    samples = []
+
+    for n in (100, 10000):
+        samples.append(
+            ([prg.next() for _ in xrange(n)], "First ${:d}$ states".format(n))
+            )
+
+        prg.reset()
+
+    samples.append(
+        ([prg.next() for _ in xrange(100)] * 5, "First $100$ states 5 times over")
+        )
+
+    display_results(samples, prg)
 
     # display_results(LCG(110, a=10, b=570, m=290))
 
