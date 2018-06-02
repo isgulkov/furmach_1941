@@ -6,77 +6,6 @@ from matplotlib.gridspec import GridSpec
 from scipy.stats import kstest
 
 
-class PRG(object):
-    def __init__(self, init):
-        if not (0 <= init < 10000):
-            raise ValueError(
-                "Initial value {:d} out of [0; 10000) range".format(init)
-            )
-
-        self._init = init
-        self._current = init
-
-    @property
-    def range(self):
-        return (0, 10000)
-
-    @property
-    def description(self):
-        raise ValueError("not implemented")
-
-    def _next(self):
-        raise ValueError("not implemented")
-
-    def next(self):
-        old = self._current
-
-        self._current = self._next()
-
-        return old / 10000.0
-
-    def reset(self):
-        self._current = self._init
-
-    def get_sample(self, n, first=False):
-        if first:
-            saved_state = self._current
-            self.reset()
-
-        sample = [self.next() for _ in xrange(n)]
-
-        if first:
-            self._current = saved_state
-
-        return sample
-
-
-class LCG(PRG):
-    def __init__(self, init, a=113, b=10, m=10000):
-        self._a, self._b, self._m = a, b, m
-
-        super(LCG, self).__init__(init)
-
-    @property
-    def description(self):
-        return "$LCG(a=%d, b=%d, m=%d, z_1=%d)$" % (self._a, self._b, self._m, self._init, )
-
-    def _next(self):
-        return (self._a * self._current + self._b) % self._m
-
-
-class MiddleSquare(PRG):
-    def __init__(self, init):
-        super(MiddleSquare, self).__init__(init)
-
-    @property
-    def description(self):
-        return "$MidSq(z_1=%d)$" % self._init
-
-    def _next(self):
-        return self._current ** 2 / 100 % 10000
-
-
-
 class SampleAnalysis:
     def _annotate_max_diff(self, ax, xs, fs, gs, g_is_step=True, s_format="$%.4f$"):
         x, f, g = xs[0], fs[0], gs[0]
@@ -189,7 +118,7 @@ class SampleAnalysis:
         self._draw_r01_kolm_smir(cx)
 
 
-def display_results(prg, sizes=(100, 10000), find_examples=True):
+def display_sample_analyses(prng, sizes=(100, 10000), find_examples=True):
     plt.rcParams['font.family'] = 'serif'
 
     plt.rcParams['xtick.labelsize'] = 'x-small'
@@ -199,7 +128,7 @@ def display_results(prg, sizes=(100, 10000), find_examples=True):
 
     analyses = [
         SampleAnalysis(
-            prg.get_sample(n, first=True),
+            prng.get_sample(n, first=True),
             "First ${:d}$ states".format(n)
         ) for n in sizes
     ]
@@ -210,14 +139,14 @@ def display_results(prg, sizes=(100, 10000), find_examples=True):
     if not analyses[-1].is_positive():
         analyses.append(
             SampleAnalysis(
-                prg.get_sample(100, first=True) * 5,
+                prng.get_sample(100, first=True) * 5,
                 "First $100$ states 5 times over"
             )
         )
 
     fig = plt.figure(figsize=(5 * len(analyses), 8))
 
-    fig.suptitle("Fitness of $R(0; 1)$ to samples from %s" % prg.description)
+    fig.suptitle("Fitness of $R(0; 1)$ to samples from %s" % prng.description)
 
     gs = GridSpec(3, len(analyses), height_ratios=[6, 6, 1])
     all_axes = [fig.add_subplot(gs[i]) for i in xrange(3 * len(analyses))]
@@ -227,13 +156,4 @@ def display_results(prg, sizes=(100, 10000), find_examples=True):
 
     plt.savefig("~figure.png", dpi=300)
     system("open ./~figure.png")
-
-
-if __name__ == '__main__':
-    # prg = LCG(2456)
-    prg = MiddleSquare(1661)
-
-    display_results(prg, (100, 10000))
-
-    # display_results(LCG(110, a=10, b=570, m=290))
 
