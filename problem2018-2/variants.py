@@ -60,10 +60,19 @@ class LCG(PRNG):
 
     @property
     def description(self):
-        return "$LCG(a=%d, b=%d, m=%d, z_1=%d)$" % (self._a, self._b, self._m, self._init, )
+        return "$LCG(a={}, b={}, m={}, z_1={})$".format(
+            *("{:,d}".format(x).replace(',', '\\,') for x in (self._a, self._b, self._m, self._init))
+        )
 
     def _next_state(self, state):
         return (self._a * state + self._b) % self._m
+
+    def _state_repr(self, state):
+        return float(state) / self._m
+
+
+def middle_four(x):
+    return x / 100 % 10000
 
 
 class MiddleSquare(PRNG):
@@ -71,11 +80,11 @@ class MiddleSquare(PRNG):
         super(MiddleSquare, self).__init__(init)
 
     @property
-    def description(self, state):
+    def description(self):
         return "$MidSq(z_1=%d)$" % self._init
 
-    def _next_state(self):
-        return state ** 2 / 100 % 10000
+    def _next_state(self, state):
+        return middle_four(state ** 2)
 
 
 class MiddleProduct(PRNG):
@@ -87,13 +96,57 @@ class MiddleProduct(PRNG):
         return "$MidProd(z_1=%d, z_2=%d)$" % self._init
 
     def _next_state(self, (a, b)):
-        return (b, a * b / 100 % 10000)
+        return (b, middle_four(a * b))
 
     def _state_repr(self, (a, b)):
         return b / 10000.0
 
 
+class PowerRemainderA(PRNG):
+    def __init__(self, init):
+        super(PowerRemainderA, self).__init__(init)
+
+    @property
+    def description(self):
+        return "$PowerRemA(z_1=%d)$" % self._init
+
+    def _next_state(self, state):
+        return middle_four(int(state ** 2.5))
+
+
+class PowerRemainderB(PRNG):
+    def __init__(self, init):
+        super(PowerRemainderB, self).__init__(init)
+
+    @property
+    def description(self):
+        return "$PowerRemB(z_1=%d)$" % self._init
+
+    def _next_state(self, state):
+        return middle_four(int((state + 17) ** 2.2))
+
+
+class PowerRemainderC(PRNG):
+    def __init__(self, init):
+        super(PowerRemainderC, self).__init__(init)
+
+    @property
+    def description(self):
+        return "$PowerRemC(z_1=%d)$" % self._init
+
+    def _next_state(self, state):
+        return middle_four(int((state + 58) ** 1.6))
+
+
 def get_prng_by_variant_number(v):
-    # return LCG(2456)
-    # return MiddleSquare(1661)
-    return MiddleProduct(8731, 1617)
+    return (
+        MiddleSquare(1661),
+        MiddleProduct(8731, 1617),
+        LCG(2456),
+        PowerRemainderA(1237),
+        LCG(10 ** 9, a=16807, b=0, m=2147483647),
+        MiddleSquare(1687),
+        MiddleProduct(3308, 1949),
+        PowerRemainderB(7724),
+        LCG(2456),
+        PowerRemainderC(4508), )[v - 1]

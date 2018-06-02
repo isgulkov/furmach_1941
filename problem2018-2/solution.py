@@ -1,5 +1,7 @@
 
 from os import system
+from itertools import product
+from functools import partial
 
 from matplotlib import pyplot as plt
 from matplotlib.gridspec import GridSpec
@@ -103,8 +105,15 @@ class SampleAnalysis:
         ax.get_xaxis().set_visible(False)
         ax.get_yaxis().set_visible(False)
 
+
+
         ax.annotate(
-            s="  $D_n = %.4f$, $p = %.2f$ (%s at $\\alpha=%d\\%%$)" % (ks_stat, p_value, reject and "no fit" or "fits", int(self.alpha * 100), ),
+            s="  $D_n = %.4f$, $p = %s$ (%s at $\\alpha=%d\\%%$)" % (
+                ks_stat,
+                ('{:.2f}' if p_value >= min(self.alpha, 0.1) else '{:.3f}').format(p_value),
+                reject and "no fit" or "fits",
+                int(self.alpha * 100),
+            ),
             xy=(0, 0),
             xytext=(0, 0.5),
             textcoords='axes fraction',
@@ -114,23 +123,19 @@ class SampleAnalysis:
     def is_positive(self):
         return kstest(self.xs, lambda x: x)[1] < self.alpha
 
+    @staticmethod
+    def will_result_positive(xs, alpha=0.05):
+        return kstest(xs, lambda x: x)[1] < alpha
+
     def __init__(self, xs, description="", alpha=0.05):
         self.xs = xs
         self.description = description
         self.alpha = alpha
 
     def draw_on(self, (ax, bx, cx)):
-        # TODO: find the range somewhere
         ax.set_title(self.description)
 
-        ax.hist(
-            self.xs,
-            bins=10,
-            range=(
-                min(min(self.xs), 0.0),
-                max(max(self.xs), 1.0)
-            )
-        )
+        ax.hist(self.xs, bins=10, range=(0.0, 1.0))
 
         self._draw_edf_vs_r01(bx)
 
@@ -155,6 +160,9 @@ def display_sample_analyses(prng, sizes=(100, 10000), find_examples=True):
     if analyses[0].is_positive():
         unique = list(take_unique(prng.forever(first=True), 100))
 
+        while SampleAnalysis.will_result_positive(unique) and len(unique) > 2:
+            unique.pop()
+
         analyses.insert(0,
             SampleAnalysis(
                 unique,
@@ -163,10 +171,19 @@ def display_sample_analyses(prng, sizes=(100, 10000), find_examples=True):
         )
 
     if not analyses[-1].is_positive():
+        n_repeat = 2
+        xs = []
+
+        for n_repeat, size in product(xrange(2, 10), (10000, 100)):
+            xs = prng.get_sample(size, first=True)
+
+            if SampleAnalysis.will_result_positive(xs * n_repeat):
+                break
+
         analyses.append(
             SampleAnalysis(
-                prng.get_sample(100, first=True) * 5,
-                "First $100$ states 5 times over"
+                xs * n_repeat,
+                "First ${:d}$ states ${:d}$ times over".format(len(xs), n_repeat)
             )
         )
 
