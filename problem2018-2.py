@@ -1,7 +1,9 @@
 
-from matplotlib import pyplot as plt, gridspec
-from scipy.stats import kstest
 from os import system
+
+from matplotlib import pyplot as plt
+from matplotlib.gridspec import GridSpec
+from scipy.stats import kstest
 
 
 class LCG:
@@ -73,7 +75,8 @@ class SampleAnalysis:
                 arrowprops=dict(arrowstyle='->', alpha=0.5, clip_on=False),
                 ha=ha_text,
                 va='center',
-                alpha=_alpha)
+                alpha=_alpha
+            )
 
         draw_annotation(f, 0.75)
         draw_annotation(g, 0.0)
@@ -102,12 +105,9 @@ class SampleAnalysis:
         ax.set_xlim(
             min(0.0, xs[0]),
             max(1.0, xs[-1])
-            )
+        )
 
-        ax.set_ylim(
-            -0.01 if xs[0] < 0.0 else 0.0,
-            1.01 if xs[-1] > 1.0 else 1.0
-            )
+        ax.set_ylim(-0.01, 1.01)
 
         ax.plot(xs, cdf_values, 'r', label="$F_{R(0; 1)}$")
 
@@ -189,16 +189,11 @@ def display_results(prg, sizes=(100, 10000), find_examples=True):
 
     fig.suptitle("Fitness of $R(0; 1)$ to samples from %s" % prg.description)
 
-    gs = gridspec.GridSpec(3, len(analyses), height_ratios=[6, 6, 1])
+    gs = GridSpec(3, len(analyses), height_ratios=[6, 6, 1])
+    all_axes = [fig.add_subplot(gs[i]) for i in xrange(3 * len(analyses))]
 
     for i, analysis in enumerate(analyses):
-        axes = tuple(
-            fig.add_subplot(
-                gs[i + j_row * len(analyses)]
-            ) for j_row in xrange(3)
-        )
-
-        analysis.draw_on(axes)
+        analysis.draw_on(all_axes[i::len(analyses)])
 
     plt.savefig("~figure.png", dpi=300)
     system("open ./~figure.png")
