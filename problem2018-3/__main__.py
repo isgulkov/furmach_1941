@@ -9,6 +9,6 @@ if __name__ == '__main__':
         print "Usage: python problem2018-3 [x], x - varik number"
         exit()
 
-    Dist = get_dist_by_variant_number(int(argv[1]))
+    Dist, dist_name = get_dist_by_variant_number(int(argv[1]))
 
-    display_results(Dist)
+    display_results(Dist, dist_name)

@@ -2,13 +2,15 @@ from os import system
 
 import numpy as np
 
+import matplotlib as mpl
 from matplotlib import pyplot as plt, cm
 from matplotlib.gridspec import GridSpec
 
 
 class Experiment:
-    def __init__(self, Dist, criteria, crit_names, sample_sizes=(8, 50), n_repeat=10000, alpha=0.05):
+    def __init__(self, Dist, dist_name, criteria, crit_names, sample_sizes=(8, 50), n_repeat=10000, alpha=0.05):
         self.Dist = Dist
+        self.dist_name = dist_name
         self.criteria = criteria
         self.crit_names = crit_names
         self.sample_sizes = sample_sizes
@@ -58,12 +60,13 @@ class Experiment:
 
         ax.yaxis.grid()
 
+        ax.set_xlim(-0.5, len(self.criteria) - 0.5)
         ax.set_ylim(0.0, max(rej_rx) * 1.5)
 
         ax.set_xticklabels(self.crit_names)
         ax.set_xticks(range(len(self.crit_names)))
 
-        ax.set_ylabel("rejections, $\\%%$")
+        ax.set_ylabel("false pos. rate, $\\%%$")
 
         ax.legend(loc='best', prop={'size': 'x-small'})
 
@@ -100,19 +103,26 @@ class Experiment:
         ax.set_ylim((-1.0, 101.0))
 
         ax.set_xlabel("$c$")
-        ax.set_ylabel("rejections, $\\%%$")
+        ax.set_ylabel("true pos. rate, $\\%%$")
 
         ax.legend(loc='best', prop={'size': 'x-small'})
 
     def display_results(self):
         fig = plt.figure(figsize=(12, 12))
 
+        fig.suptitle("Evaluating stat. power of two-sample EV equality tests on samples from {}{}".format(
+            "$\\xi$" + ("$ \sim\ $" if '=' not in self.dist_name else ", "),
+            self.dist_name
+        ))
+
         gs = GridSpec(len(self.sample_sizes), 2)
 
         for i, sample_size in enumerate(self.sample_sizes):
             print "Sample size", sample_size
 
-            self._display_false_positives(fig.add_subplot(gs[i, 0]), sample_size)
+            ax_false_pos = fig.add_subplot(gs[i, 0])
+
+            self._display_false_positives(ax_false_pos, sample_size)
 
             self._display_powers(
                 fig.add_subplot(gs[i, 1]),
@@ -123,13 +133,22 @@ class Experiment:
                 ])
             )
 
+            left_loc = ax_false_pos.get_position()
+
+            fig.text(
+                left_loc.x0 / 2.0,
+                (left_loc.y0 + left_loc.y1) / 2.0,
+                "${:d}$".format(sample_size),
+                ha='right'
+            )
+
         return fig
 
 
 from scipy.stats import ttest_ind, ttest_rel, ranksums
 
 
-def display_results(Dist):
+def display_results(Dist, dist_name):
     plt.rcParams['font.family'] = 'serif'
 
     plt.rcParams['xtick.labelsize'] = 'x-small'
@@ -139,10 +158,19 @@ def display_results(Dist):
 
     fig = Experiment(
         lambda: Dist(),
-        (ttest_ind, ttest_rel, ranksums),
-        ("Student (ind.)", "Student (rel.)", "Wilcoxon"),
+        dist_name,
+        (
+            ttest_ind,
+            # ttest_rel,
+            ranksums,
+        ),
+        (
+            "Student (ind.)",
+            # "Student (rel.)",
+            "Wilcoxon",
+        ),
         sample_sizes=(8, 50),
-        n_repeat=500
+        n_repeat=100
     ).display_results()
 
     fig.savefig("~figure.png", dpi=300)
