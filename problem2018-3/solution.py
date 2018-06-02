@@ -70,42 +70,62 @@ class Experiment:
 
         ax.legend(loc='best', prop={'size': 'x-small'})
 
+    @classmethod
+    def _display_derivative(cls, ax, xs, ys, c, name):
+        ds = np.convolve(np.gradient(ys) / np.gradient(xs), [0.2, 0.2, 0.2, 0.2, 0.2], mode='same')
+
+        d_line = ax.plot(xs, ds, color=c, linestyle=':', alpha=0.8, label="$\\frac{d}{dx} $" + name)
+
+        i_max = np.argmax(ds)
+        x, d = xs[i_max], ds[i_max]
+
+        ax.axhline(d, color=c, linestyle='-.', alpha=0.8)
+        ax.text(x, d, "${:.2f}$".format(d), va='bottom', ha='center', fontdict={'size': 'x-small'}, color=c)
+
+        ax.set_ylim(-0.01, max(d * 1.1, ax.get_ylim()[1]))
+
+        return d_line
+
     def _display_powers(self, ax, sample_size, cx=np.arange(0.0, 4.01, 0.5)):
-        rej_rxs = []
+        crits_rates = []
 
         for c in cx:
             sample_pairs = self._create_sample_pairs(sample_size)
 
             sample_pairs[:,1,:] += c
 
-            rej_rxs.append(
+            crits_rates.append(
                 self._rejection_rates(sample_pairs)
             )
 
-        rej_rxs = np.transpose(rej_rxs) * 100.0
+        crits_rates = np.transpose(crits_rates) * 100.0
 
-        for i, (rej_rx, name) in enumerate(zip(rej_rxs, self.crit_names)):
-            ax.plot(cx, rej_rx, color=self._ith_color(i), marker='.', label=name)
+        f_lines = []
+        df_lines = []
 
         d_ax = ax.twinx()
 
-        for i, (rej_rx, name) in enumerate(zip(rej_rxs, self.crit_names)):
-            dcx = (cx[1:] - cx[:-1])
-            drej_rx = (rej_rx[1:] - rej_rx[:-1]) / dcx
+        for i, (rates, name) in enumerate(zip(crits_rates, self.crit_names)):
+            f_line = ax.plot(cx, rates, color=self._ith_color(i), marker='.', label=name)
+            f_lines.append(f_line[0])
 
-            d_ax.plot(cx[:-1] + 0.5 * dcx, drej_rx, color=self._ith_color(i), linestyle=':', alpha=0.5, label="$\\frac{d}{dc}$" + name)
+            df_line = self._display_derivative(d_ax, cx, rates, self._ith_color(i), name)
+            df_lines.append(df_line[0])
+
+        d_ax.set_ylabel("$\\frac{d}{dx} $ true pos. rate, $\\frac{\\%}{\\Delta c}$")
 
         ax.set_title("Power", loc='left')
 
         ax.yaxis.grid()
 
-        ax.set_xlim((min(cx), max(cx)))
-        ax.set_ylim((-1.0, 101.0))
+        ax.set_xlim(min(cx), max(cx))
+        ax.set_ylim(-1.0, 101.0)
 
         ax.set_xlabel("$c$")
         ax.set_ylabel("true pos. rate, $\\%%$")
 
-        ax.legend(loc='best', prop={'size': 'x-small'})
+        all_lines = [line for p in zip(f_lines, df_lines) for line in p]
+        d_ax.legend(all_lines, [line.get_label() for line in all_lines], loc='lower right', prop={'size': 'x-small'}, markerscale=1.5)
 
     def display_results(self):
         fig = plt.figure(figsize=(12, 12))
@@ -129,7 +149,7 @@ class Experiment:
                 sample_size,
                 cx=np.concatenate([
                     np.linspace(0.0, 1.0, num=10)[:-1],
-                    np.linspace(1.0, 3.01, num=10)
+                    np.linspace(1.0, 4.0, num=10)
                 ])
             )
 
@@ -170,7 +190,7 @@ def display_results(Dist, dist_name):
             "Wilcoxon",
         ),
         sample_sizes=(8, 50),
-        n_repeat=100
+        n_repeat=1000
     ).display_results()
 
     fig.savefig("~figure.png", dpi=300)
