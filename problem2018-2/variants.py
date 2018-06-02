@@ -1,34 +1,43 @@
 
+from itertools import islice
+
 class PRNG(object):
     def __init__(self, init):
-        if not (0 <= init < 10000):
-            raise ValueError(
-                "Initial value {:d} out of [0; 10000) range".format(init)
-            )
-
         self._init = init
         self._current = init
 
     @property
-    def range(self):
-        return (0, 10000)
-
-    @property
     def description(self):
-        raise ValueError("not implemented")
+        raise TypeError("not implemented")
 
-    def _next(self):
-        raise ValueError("not implemented")
+    def _state_repr(this, state):
+        return state / 10000.0
+
+    def _next_state(self, state):
+        raise TypeError("not implemented")
 
     def next(self):
-        old = self._current
+        v = self._state_repr(self._current)
 
-        self._current = self._next()
+        self._current = self._next_state(self._current)
 
-        return old / 10000.0
+        return v
 
     def reset(self):
         self._current = self._init
+
+    def forever(self, first=False):
+        if not first:
+            while True:
+                yield self.next()
+        else:
+            state = self._init
+
+            while True:
+                yield self._state_repr(state)
+
+                state = self._next_state(state)
+
 
     def get_sample(self, n, first=False):
         if first:
@@ -53,8 +62,8 @@ class LCG(PRNG):
     def description(self):
         return "$LCG(a=%d, b=%d, m=%d, z_1=%d)$" % (self._a, self._b, self._m, self._init, )
 
-    def _next(self):
-        return (self._a * self._current + self._b) % self._m
+    def _next_state(self, state):
+        return (self._a * state + self._b) % self._m
 
 
 class MiddleSquare(PRNG):
@@ -62,13 +71,29 @@ class MiddleSquare(PRNG):
         super(MiddleSquare, self).__init__(init)
 
     @property
-    def description(self):
+    def description(self, state):
         return "$MidSq(z_1=%d)$" % self._init
 
-    def _next(self):
-        return self._current ** 2 / 100 % 10000
+    def _next_state(self):
+        return state ** 2 / 100 % 10000
+
+
+class MiddleProduct(PRNG):
+    def __init__(self, a_init, b_init):
+        super(MiddleProduct, self).__init__((a_init, b_init))
+
+    @property
+    def description(self):
+        return "$MidProd(z_1=%d, z_2=%d)$" % self._init
+
+    def _next_state(self, (a, b)):
+        return (b, a * b / 100 % 10000)
+
+    def _state_repr(self, (a, b)):
+        return b / 10000.0
 
 
 def get_prng_by_variant_number(v):
     # return LCG(2456)
-    return MiddleSquare(1661)
+    # return MiddleSquare(1661)
+    return MiddleProduct(8731, 1617)

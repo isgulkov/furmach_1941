@@ -6,6 +6,25 @@ from matplotlib.gridspec import GridSpec
 from scipy.stats import kstest
 
 
+def take_unique(it, max_unique, max_total=None):
+    if max_total is None:
+        max_total = max_unique * 100
+
+    seen = set()
+
+    for i, x in enumerate(it):
+        if i >= max_total:
+            break
+
+        if x not in seen:
+            seen.add(x)
+
+            yield x
+
+            if len(seen) == max_unique:
+                return
+
+
 class SampleAnalysis:
     def _annotate_max_diff(self, ax, xs, fs, gs, g_is_step=True, s_format="$%.4f$"):
         x, f, g = xs[0], fs[0], gs[0]
@@ -134,7 +153,14 @@ def display_sample_analyses(prng, sizes=(100, 10000), find_examples=True):
     ]
 
     if analyses[0].is_positive():
-        pass # TODO: !
+        unique = list(take_unique(prng.forever(first=True), 100))
+
+        analyses.insert(0,
+            SampleAnalysis(
+                unique,
+                "First ${:d}$ unique states".format(len(unique))
+            )
+        )
 
     if not analyses[-1].is_positive():
         analyses.append(
