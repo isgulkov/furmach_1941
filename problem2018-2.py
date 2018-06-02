@@ -6,33 +6,36 @@ from matplotlib.gridspec import GridSpec
 from scipy.stats import kstest
 
 
-class LCG:
-    def __init__(self, init, a=113, b=10, m=10000):
-        self._a, self._b, self._m = a, b, m
-
-        if init >= m:
-            raise ValueError("Initial state can't be greater than `m`")
+class PRG(object):
+    def __init__(self, init):
+        if not (0 <= init < 10000):
+            raise ValueError(
+                "Initial value {:d} out of [0; 10000) range".format(init)
+            )
 
         self._init = init
         self._current = init
 
     @property
-    def description(self):
-        return "$LCG(a=%d, b=%d, m=%d, z_0=%d)$" % (self._a, self._b, self._m, self._init, )
+    def range(self):
+        return (0, 10000)
 
     @property
-    def range(self):
-        return (0, self._m)
+    def description(self):
+        raise ValueError("not implemented")
 
-    def reset(self):
-        self._current = self._init
+    def _next(self):
+        raise ValueError("not implemented")
 
     def next(self):
         old = self._current
 
-        self._current = (self._a * self._current + self._b) % self._m
+        self._current = self._next()
 
-        return old
+        return old / 10000.0
+
+    def reset(self):
+        self._current = self._init
 
     def get_sample(self, n, first=False):
         if first:
@@ -45,6 +48,33 @@ class LCG:
             self._current = saved_state
 
         return sample
+
+
+class LCG(PRG):
+    def __init__(self, init, a=113, b=10, m=10000):
+        self._a, self._b, self._m = a, b, m
+
+        super(LCG, self).__init__(init)
+
+    @property
+    def description(self):
+        return "$LCG(a=%d, b=%d, m=%d, z_1=%d)$" % (self._a, self._b, self._m, self._init, )
+
+    def _next(self):
+        return (self._a * self._current + self._b) % self._m
+
+
+class MiddleSquare(PRG):
+    def __init__(self, init):
+        super(MiddleSquare, self).__init__(init)
+
+    @property
+    def description(self):
+        return "$MidSq(z_1=%d)$" % self._init
+
+    def _next(self):
+        return self._current ** 2 / 100 % 10000
+
 
 
 class SampleAnalysis:
@@ -88,7 +118,7 @@ class SampleAnalysis:
 
 
     def _draw_edf_vs_r01(self, ax):
-        xs = sorted(self._xs_scaled)
+        xs = sorted(self.xs)
 
         edf_values = [float(i) / len(xs) for i in xrange(1, len(xs) + 1)]
 
@@ -118,7 +148,7 @@ class SampleAnalysis:
         ax.legend(loc='best')
 
     def _draw_r01_kolm_smir(self, ax):
-        ks_stat, p_value = kstest(self._xs_scaled, lambda x: x)
+        ks_stat, p_value = kstest(self.xs, lambda x: x)
 
         reject = p_value < self.alpha
 
@@ -133,16 +163,8 @@ class SampleAnalysis:
             ha='left',
             va='center')
 
-    @property
-    def _xs_scaled(self):
-        # TODO: don't scale here!
-        x_max = 10000.0 #float(max(self.xs))
-        x_min = 0 #min(self.xs)
-
-        return [(x - x_min) / (x_max - x_min) for x in self.xs]
-
     def is_positive(self):
-        return kstest(self._xs_scaled, lambda x: x)[1] < self.alpha
+        return kstest(self.xs, lambda x: x)[1] < self.alpha
 
     def __init__(self, xs, description="", alpha=0.05):
         self.xs = xs
@@ -151,8 +173,16 @@ class SampleAnalysis:
 
     def draw_on(self, (ax, bx, cx)):
         # TODO: find the range somewhere
-        ax.hist(self.xs, bins=10, range=(0, 10000))
         ax.set_title(self.description)
+
+        ax.hist(
+            self.xs,
+            bins=10,
+            range=(
+                min(min(self.xs), 0.0),
+                max(max(self.xs), 1.0)
+            )
+        )
 
         self._draw_edf_vs_r01(bx)
 
@@ -174,16 +204,16 @@ def display_results(prg, sizes=(100, 10000), find_examples=True):
         ) for n in sizes
     ]
 
-    if not analyses[0].is_positive():
+    if analyses[0].is_positive():
+        pass # TODO: !
+
+    if not analyses[-1].is_positive():
         analyses.append(
             SampleAnalysis(
                 prg.get_sample(100, first=True) * 5,
                 "First $100$ states 5 times over"
             )
         )
-
-    if analyses[-1].is_positive():
-        pass # TODO: !
 
     fig = plt.figure(figsize=(5 * len(analyses), 8))
 
@@ -200,7 +230,8 @@ def display_results(prg, sizes=(100, 10000), find_examples=True):
 
 
 if __name__ == '__main__':
-    prg = LCG(2456)
+    # prg = LCG(2456)
+    prg = MiddleSquare(1661)
 
     display_results(prg, (100, 10000))
 
