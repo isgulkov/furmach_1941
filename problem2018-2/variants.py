@@ -10,14 +10,23 @@ class PRNG(object):
     def description(self):
         raise TypeError("not implemented")
 
-    def _state_repr(this, state):
-        return state / 10000.0
+    def _int_repr(self, state):
+        return state
+
+    def _float_repr(self, state):
+        return self._int_repr(state) / 10000.0
+
+    def _state_repr(self, state, as_float=True):
+        if as_float:
+            return self._float_repr(state)
+        else:
+            return self._int_repr(state)
 
     def _next_state(self, state):
         raise TypeError("not implemented")
 
-    def next(self):
-        v = self._state_repr(self._current)
+    def next(self, as_float=True):
+        v = self._state_repr(self._current, as_float=as_float)
 
         self._current = self._next_state(self._current)
 
@@ -26,27 +35,27 @@ class PRNG(object):
     def reset(self):
         self._current = self._init
 
-    def forever(self, first=False):
-        if not first:
+    def iter(self, from_first=True, as_float=True):
+        if not from_first:
             while True:
-                yield self.next()
+                yield self.next(as_float=as_float)
         else:
             state = self._init
 
             while True:
-                yield self._state_repr(state)
+                yield self._state_repr(state, as_float=as_float)
 
                 state = self._next_state(state)
 
 
-    def get_sample(self, n, first=False):
-        if first:
+    def get_sample(self, n, from_first=True, as_float=True):
+        if from_first:
             saved_state = self._current
             self.reset()
 
-        sample = [self.next() for _ in xrange(n)]
+        sample = [self.next(as_float=as_float) for _ in xrange(n)]
 
-        if first:
+        if from_first:
             self._current = saved_state
 
         return sample
@@ -67,7 +76,7 @@ class LCG(PRNG):
     def _next_state(self, state):
         return (self._a * state + self._b) % self._m
 
-    def _state_repr(self, state):
+    def _float_repr(self, state):
         return float(state) / self._m
 
 
@@ -98,8 +107,8 @@ class MiddleProduct(PRNG):
     def _next_state(self, (a, b)):
         return (b, middle_four(a * b))
 
-    def _state_repr(self, (a, b)):
-        return b / 10000.0
+    def _int_repr(self, (a, b)):
+        return b
 
 
 class PowerRemainderA(PRNG):

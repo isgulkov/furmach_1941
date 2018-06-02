@@ -28,44 +28,47 @@ def take_unique(it, max_unique, max_total=None):
 def display_sample_analyses(prng, sizes=(100, 10000), find_examples=True):
     analyses = [
         SampleAnalysis(
-            prng.get_sample(n, first=True),
+            prng.get_sample(n),
             "First ${:d}$ states".format(n)
         ) for n in sizes
     ]
 
-    if analyses[0].is_positive():
-        unique = list(take_unique(prng.forever(first=True), 100))
 
-        while SampleAnalysis.will_result_positive(unique) and len(unique) > 2:
-            unique.pop()
+    if find_examples:
+        if analyses[0].is_positive():
+            unique = list(take_unique(prng.iter(), 100))
 
-        analyses.insert(0,
-            SampleAnalysis(
-                unique,
-                "First ${:d}$ unique states".format(len(unique))
+            while SampleAnalysis.will_result_positive(unique) and len(unique) > 2:
+                unique.pop()
+
+            analyses.insert(0,
+                SampleAnalysis(
+                    unique,
+                    "First ${:d}$ unique states".format(len(unique))
+                )
             )
-        )
 
-    if not analyses[-1].is_positive():
-        n_repeat = 2
-        xs = []
+        if not analyses[-1].is_positive():
+            n_repeat = 2
+            xs = []
 
-        for n_repeat, size in product(xrange(2, 10), (10000, 100)):
-            xs = prng.get_sample(size, first=True)
+            for n_repeat, size in product(xrange(2, 10), (10000, 100)):
+                xs = prng.get_sample(size)
 
-            if SampleAnalysis.will_result_positive(xs * n_repeat):
-                break
+                if SampleAnalysis.will_result_positive(xs * n_repeat):
+                    break
 
-        analyses.append(
-            SampleAnalysis(
-                xs * n_repeat,
-                "First ${:d}$ states ${:d}$ times over".format(len(xs), n_repeat)
+            analyses.append(
+                SampleAnalysis(
+                    xs * n_repeat,
+                    "First ${:d}$ states ${:d}$ times over".format(len(xs), n_repeat)
+                )
             )
-        )
 
     fig = SampleAnalysis.draw_all(
         analyses,
-        suptitle="Fitness of $R(0; 1)$ to samples from %s" % prng.description
+        suptitle="Fitness of $R(0; 1)$ to samples from %s" % prng.description,
+        first_ten=prng.get_sample(10, as_float=False)
     )
 
     fig.savefig("~figure.png", dpi=300)

@@ -82,10 +82,8 @@ class SampleAnalysis:
         ax.get_xaxis().set_visible(False)
         ax.get_yaxis().set_visible(False)
 
-
-
         ax.annotate(
-            s="  $D_n = %.4f$, $p = %s$ (%s at $\\alpha=%d\\%%$)" % (
+            s="  $D_n = {:.4f}$, $p = {}$ ({} at $\\alpha={:d}\\%%$)".format(
                 ks_stat,
                 ('{:.2f}' if p_value >= min(self.alpha, 0.1) else '{:.3f}').format(p_value),
                 reject and "no fit" or "fits",
@@ -118,8 +116,20 @@ class SampleAnalysis:
 
         self._draw_r01_kolm_smir(cx)
 
-    @staticmethod
-    def draw_all(analyses, suptitle=None):
+    @classmethod
+    def _draw_first_ten(cls, fig, xs, y_pos=0.01):
+        fig.text(0.5, y_pos,
+            "First ten: " + (
+                ', '.join('${:,d}$'.format(x).replace(',', '\\ ') for x in xs)
+            ),
+            ha='center',
+            va='top',
+            size='xx-small',
+            color='#989898'
+        )
+
+    @classmethod
+    def draw_all(cls, analyses, suptitle=None, first_ten=None):
         plt.rcParams['font.family'] = 'serif'
 
         plt.rcParams['xtick.labelsize'] = 'x-small'
@@ -137,5 +147,8 @@ class SampleAnalysis:
 
         for i, analysis in enumerate(analyses):
             analysis.draw_on(all_axes[i::len(analyses)])
+
+        if first_ten is not None:
+            cls._draw_first_ten(fig, first_ten, all_axes[-1].get_position().y0 * 0.8)
 
         return fig
