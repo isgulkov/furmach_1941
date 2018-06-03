@@ -48,6 +48,9 @@ class InverseTxDist(object):
         # Replace with quantile function manually solved for
         raise TypeError("Not implemented")
 
+    def std(self):
+        return None
+
     def rvs(self, size=()):
         return self.qfx(self.prv.rvs(size))
 
@@ -60,6 +63,10 @@ class Var4DistInverseTx(InverseTxDist):
     def qf(self, p):
         return np.log(- p / (p - 1))
 
+    def std(self):
+        # Empirical on 1.5M-sample
+        return 1.813161003617862
+
 
 class Var9DistInverseTx(InverseTxDist):
     def __init__(self):
@@ -67,6 +74,10 @@ class Var9DistInverseTx(InverseTxDist):
 
     def qf(self, p):
         return (-np.log(1 - p)) ** 2.5
+
+    def std(self):
+        # Empirical on 1.5M-sample
+        return 10.364418217353347
 
 
 def get_dist_by_variant_number(v):

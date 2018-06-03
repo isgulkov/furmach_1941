@@ -8,9 +8,10 @@ from matplotlib.gridspec import GridSpec
 
 
 class ResultsPlot:
-    def __init__(self, dist_name, crit_names):
+    def __init__(self, dist_name, crit_names, dist_std=None):
         self.dist_name = dist_name
         self.crit_names = crit_names
+        self.dist_std = dist_std
         self.results = []
 
     def _ith_color(self, i_crit):
@@ -60,6 +61,14 @@ class ResultsPlot:
 
         return d_line
 
+    @classmethod
+    def _display_sigma_scale(cls, ax, sigma, cx):
+        for i in np.arange(cx[-1] / sigma + 0.5):
+            i_sigma = sigma * (i + 1)
+
+            ax.axvline(i_sigma, color='blue', alpha=0.07)
+            ax.text(i_sigma, 50.0, " ${}\\sigma$".format(int(i + 1) if i != 0 else ""), va='center', ha='left', fontdict={'size': 'small'}, color='blue', alpha=0.25, zorder=100)
+
     def _display_powers(self, ax, cx, power_plots):
         power_plots *= 100.0
 
@@ -74,6 +83,9 @@ class ResultsPlot:
 
             df_line = self._display_derivative(d_ax, cx, rates, self._ith_color(i), name)
             df_lines.append(df_line[0])
+
+        if self.dist_std is not None:
+            self._display_sigma_scale(ax, self.dist_std, cx)
 
         d_ax.set_ylabel("$\\frac{d}{dc} $ true pos. rate, $\\frac{\\%}{\\Delta c}$")
 
@@ -197,7 +209,8 @@ def display_results(Dist, dist_name):
             "Student (ind.)",
             # "Student (rel.)",
             "Wilcoxon",
-        )
+        ),
+        dist_std=Dist().std()
     )
 
     cx = np.concatenate([
