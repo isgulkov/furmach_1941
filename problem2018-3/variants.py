@@ -1,8 +1,5 @@
-from functools import partial
-
-from scipy.stats import rv_continuous, norm, uniform, expon, f, lognorm, chi2, bernoulli, t
-
 import numpy as np
+from scipy.stats import rv_continuous
 
 
 class Var4Dist(rv_continuous):
@@ -80,16 +77,20 @@ class Var9DistInverseTx(InverseTxDist):
         return 10.364418217353347
 
 
+from functools import partial
+from scipy.stats import norm, uniform, expon, f, lognorm, chi2, bernoulli, t
+
+
 def get_dist_by_variant_number(v):
     return (
-        (lambda: norm(0, 1), "$N(0,\ 1)$"),
-        (lambda: uniform(0, 6), "$R(0,\ 6)$"),
-        (lambda: expon(1), "$E(1)$"),
-        (lambda: Var4DistInverseTx(), "$F_{\\xi_i} = \\frac{e^x}{1 + e^x}$"),
-        (lambda: f(2, 3), "$F(2,\ 3)$"),
-        (lambda: lognorm(0.7, 0.3 ** 2), "$\\ln N(0.7,\ 0.3^2)$"),
-        (lambda: chi2(1), "$\\chi^2_1$"),
-        (lambda: t(2), "$t_2$"),
-        (lambda: Var9DistInverseTx(), "$F_{\\xi_i} = 1 - e^{-x^0.4},\\ x \\geq 0;\\ 0,\\ otherwise$"),
-        (lambda: t(4), "$t_4$"),
+        (partial(norm, 0, 1), "$N(0,\ 1)$"),
+        (partial(uniform, 0, 6), "$R(0,\ 6)$"),
+        (partial(expon, 1), "$E(1)$"),
+        (Var4DistInverseTx, "$F_{\\xi_i} = \\frac{e^x}{1 + e^x}$"),
+        (partial(f, 2, 3), "$F(2,\ 3)$"),
+        (partial(lognorm, 0.7, 0.3 ** 2), "$\\ln N(0.7,\ 0.3^2)$"),
+        (partial(chi2, 1), "$\\chi^2_1$"),
+        (partial(t, 2), "$t_2$"),
+        (Var9DistInverseTx, "$F_{\\xi_i} = 1 - e^{-x^0.4},\\ x \\geq 0;\\ 0,\\ otherwise$"),
+        (partial(t, 4), "$t_4$"),
     )[v - 1]

@@ -108,6 +108,14 @@ class ResultsPlot:
         )
 
     def display_results(self):
+        # TODO: replace with "with plt.rcparams: ..."
+        plt.rcParams['font.family'] = 'serif'
+
+        plt.rcParams['xtick.labelsize'] = 'x-small'
+        plt.rcParams['xtick.color'] = '#545454'
+        plt.rcParams['ytick.labelsize'] = 'x-small'
+        plt.rcParams['ytick.color'] = '#545454'
+
         fig = plt.figure(figsize=(12, 12))
 
         fig.suptitle("Evaluating stat. power of two-sample EV equality tests on samples from {}{}".format(
@@ -141,8 +149,8 @@ class ResultsPlot:
 
 
 class TwoSampleExperiment:
-    def __init__(self, Dist, criteria, n_repeat=10000, alpha=0.05):
-        self.Dist = Dist
+    def __init__(self, rv, criteria, n_repeat=10000, alpha=0.05):
+        self.rv = rv
         self.criteria = criteria
         self.n_repeat = n_repeat
         self.alpha = alpha
@@ -165,7 +173,7 @@ class TwoSampleExperiment:
         return nx_reject / sample_pairs.shape[0]
 
     def _create_sample_pairs(self, sample_size):
-        return self.Dist().rvs(size=(self.n_repeat, 2, sample_size))
+        return self.rv.rvs(size=(self.n_repeat, 2, sample_size))
 
     def get_false_positives(self, sample_size):
         print "Calculating f.pos, n =", sample_size
@@ -194,7 +202,7 @@ from scipy.stats import ttest_ind, ttest_rel, ranksums
 
 def display_results(Dist, dist_name):
     e = TwoSampleExperiment(
-        Dist,
+        Dist(),
         (
             ttest_ind,
             # ttest_rel,
@@ -223,13 +231,6 @@ def display_results(Dist, dist_name):
         powers = e.get_powers(sample_size, cx)
 
         plot.add_result(sample_size, fposx, cx, powers)
-
-    plt.rcParams['font.family'] = 'serif'
-
-    plt.rcParams['xtick.labelsize'] = 'x-small'
-    plt.rcParams['xtick.color'] = '#545454'
-    plt.rcParams['ytick.labelsize'] = 'x-small'
-    plt.rcParams['ytick.color'] = '#545454'
 
     fig = plot.display_results()
 
