@@ -33,32 +33,40 @@ class Var4Dist:
         return np.array([self.rv() for i in xrange(n)]).reshape(size)
 
 
-class Var4DistInverseTx:
-    # About 750x faster than the rv_continuous version
+class Var9Dist(rv_continuous):
+    def _cdf(self, x):
+        return 0 if x < 0 else 1 - np.exp(-(x ** 0.4))
+
+
+class InverseTxDist(object):
     def __init__(self):
         self.prv = uniform(0, 1)
 
         self.qfx = np.vectorize(self.qf)
 
     def qf(self, p):
-        # Quantile function manually solved for
-        return np.log(- p / (p - 1))
+        # Replace with quantile function manually solved for
+        raise TypeError("Not implemented")
 
     def rvs(self, size=()):
         return self.qfx(self.prv.rvs(size))
 
 
-class RvsWrapper:
-    def __init__(self, f):
-        self.f = f
+class Var4DistInverseTx(InverseTxDist):
+    # About 750x faster than the rv_continuous version
+    def __init__(self):
+        super(Var4DistInverseTx, self).__init__()
 
-    def rvs(self, size=None):
-        return self.f(size=size)
+    def qf(self, p):
+        return np.log(- p / (p - 1))
 
 
-class Var9Dist(rv_continuous):
-    def _cdf(self, x):
-        return 0 if x < 0 else 1 - np.exp(-(x ** 0.4))
+class Var9DistInverseTx(InverseTxDist):
+    def __init__(self):
+        super(Var9DistInverseTx, self).__init__()
+
+    def qf(self, p):
+        return (-np.log(1 - p)) ** 2.5
 
 
 def get_dist_by_variant_number(v):
@@ -71,6 +79,6 @@ def get_dist_by_variant_number(v):
         (lambda: lognorm(0.7, 0.3 ** 2), "$\\ln N(0.7,\ 0.3^2)$"),
         (lambda: chi2(1), "$\\chi^2_1$"),
         (lambda: t(2), "$t_2$"),
-        (lambda: Var9Dist(), "$F_{\\xi_i} = 1 - e^{-x^0.4},\\ x \\geq 0;\\ 0,\\ otherwise$"),
+        (lambda: Var9DistInverseTx(), "$F_{\\xi_i} = 1 - e^{-x^0.4},\\ x \\geq 0;\\ 0,\\ otherwise$"),
         (lambda: t(4), "$t_4$"),
     )[v - 1]

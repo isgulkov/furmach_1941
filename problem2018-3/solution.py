@@ -112,7 +112,7 @@ class Experiment:
             df_line = self._display_derivative(d_ax, cx, rates, self._ith_color(i), name)
             df_lines.append(df_line[0])
 
-        d_ax.set_ylabel("$\\frac{d}{dx} $ true pos. rate, $\\frac{\\%}{\\Delta c}$")
+        d_ax.set_ylabel("$\\frac{d}{dc} $ true pos. rate, $\\frac{\\%}{\\Delta c}$")
 
         ax.set_title("Power", loc='left')
 
