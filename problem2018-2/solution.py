@@ -33,37 +33,35 @@ def display_sample_analyses(prng, sizes=(100, 10000), find_examples=True):
         ) for n in sizes
     ]
 
+    if find_examples and analyses[0].is_positive():
+        unique = list(take_unique(prng.iter(), 100))
 
-    if find_examples:
-        if analyses[0].is_positive():
-            unique = list(take_unique(prng.iter(), 100))
+        while SampleAnalysis.will_result_positive(unique) and len(unique) > 2:
+            unique.pop()
 
-            while SampleAnalysis.will_result_positive(unique) and len(unique) > 2:
-                unique.pop()
-
-            analyses.insert(0,
-                SampleAnalysis(
-                    unique,
-                    "First ${:d}$ unique states".format(len(unique))
-                )
+        analyses.insert(0,
+            SampleAnalysis(
+                unique,
+                "First ${:d}$ unique states".format(len(unique))
             )
+        )
 
-        if not analyses[-1].is_positive():
-            n_repeat = 2
-            xs = []
+    if find_examples and not analyses[-1].is_positive():
+        n_repeat = 2
+        xs = []
 
-            for n_repeat, size in product(xrange(2, 10), (10000, 100)):
-                xs = prng.get_sample(size)
+        for n_repeat, size in product(xrange(2, 10), (10000, 100)):
+            xs = prng.get_sample(size)
 
-                if SampleAnalysis.will_result_positive(xs * n_repeat):
-                    break
+            if SampleAnalysis.will_result_positive(xs * n_repeat):
+                break
 
-            analyses.append(
-                SampleAnalysis(
-                    xs * n_repeat,
-                    "First ${:d}$ states ${:d}$ times over".format(len(xs), n_repeat)
-                )
+        analyses.append(
+            SampleAnalysis(
+                xs * n_repeat,
+                "First ${:d}$ states ${:d}$ times over".format(len(xs), n_repeat)
             )
+        )
 
     fig = SampleAnalysis.draw_all(
         analyses,

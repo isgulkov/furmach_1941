@@ -7,29 +7,6 @@ class Var4Dist(rv_continuous):
         return np.exp(x) / (1 + np.exp(x))
 
 
-class Var4Dist:
-    # About 2.5x faster than the rv_continuous version
-    def __init__(self):
-        self.xrv = uniform(-10, 20)
-        self.yrv = uniform(0, 0.25)
-
-    def pdf(self, x):
-        return np.exp(x) / (1 + np.exp(x)) - np.exp(2 * x) / (1 + np.exp(x)) ** 2
-
-    def rv(self):
-        while True:
-            x = self.xrv.rvs()
-            y = self.yrv.rvs()
-
-            if y < self.pdf(x):
-                return x
-
-    def rvs(self, size=1):
-        n = np.product(size)
-
-        return np.array([self.rv() for i in xrange(n)]).reshape(size)
-
-
 class Var9Dist(rv_continuous):
     def _cdf(self, x):
         return 0 if x < 0 else 1 - np.exp(-(x ** 0.4))
