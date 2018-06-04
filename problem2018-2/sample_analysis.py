@@ -66,9 +66,9 @@ class SampleAnalysis:
 
         ax.set_ylim(-0.01, 1.01)
 
-        ax.plot(xs, cdf_values, 'r', label="$F_{R(0; 1)}$")
+        ax.plot(xs, cdf_values, 'r', label="$F_{R(0; 1)}$", linewidth=1)
 
-        ax.step(xs, edf_values, 'b', where='post', label="EDF")
+        ax.step(xs, edf_values, 'b', where='post', label="EDF", linewidth=1)
 
         self._annotate_max_diff(ax, xs, cdf_values, edf_values, s_format="$D_n = %.4f$")
 
@@ -110,7 +110,7 @@ class SampleAnalysis:
     def draw_on(self, (ax, bx, cx)):
         ax.set_title(self.description)
 
-        ax.hist(self.xs, bins=10, range=(0.0, 1.0))
+        ax.hist(self.xs, bins=10, range=(0.0, 1.0), edgecolor='white')
 
         self._draw_edf_vs_r01(bx)
 
@@ -131,6 +131,7 @@ class SampleAnalysis:
     @classmethod
     def draw_all(cls, analyses, suptitle=None, first_ten=None):
         plt.rcParams['font.family'] = 'serif'
+        plt.rcParams['mathtext.fontset'] = 'dejavuserif'
 
         plt.rcParams['xtick.labelsize'] = 'x-small'
         plt.rcParams['xtick.color'] = '#545454'
