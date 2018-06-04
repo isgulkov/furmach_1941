@@ -14,14 +14,11 @@ class ResultsPlot:
         self.dist_std = dist_std
         self.results = []
 
-    def _ith_color(self, i_crit):
-        return cm.Set1(float(i_crit) / len(self.crit_names))
-
     def _display_false_positives(self, ax, fpos_rates):
         fpos_rates *= 100.0
 
         for i, rate in enumerate(fpos_rates):
-            bar_rect = ax.bar([i], [rate], 0.8, align='center', color=self._ith_color(i), label=self.crit_names[i])[0]
+            bar_rect = ax.bar([i], [rate], 0.8, align='center', label=self.crit_names[i])[0]
 
             ax.text(
                 bar_rect.get_x() + bar_rect.get_width() / 2.,
@@ -33,7 +30,7 @@ class ResultsPlot:
 
         ax.set_title("False positives", loc='left')
 
-        ax.yaxis.grid()
+        ax.yaxis.grid(linestyle=':')
 
         ax.set_xlim(-0.5, len(fpos_rates) - 0.5)
         ax.set_ylim(0.0, max(fpos_rates) * 1.5)
@@ -46,15 +43,13 @@ class ResultsPlot:
         ax.legend(loc='best', prop={'size': 'x-small'})
 
     @classmethod
-    def _display_derivative(cls, ax, xs, ys, c, name):
-        ds = np.convolve(np.gradient(ys) / np.gradient(xs), [0.2, 0.2, 0.2, 0.2, 0.2], mode='same')
+    def _display_derivative(cls, ax, xs, dys, c, name):
+        d_line = ax.plot(xs, dys, color=c, linestyle=':', alpha=0.35, label="$\\frac{d}{dx} $" + name)
 
-        d_line = ax.plot(xs, ds, color=c, linestyle=':', alpha=0.8, label="$\\frac{d}{dx} $" + name)
+        i_max = np.argmax(dys)
+        x, d = xs[i_max], dys[i_max]
 
-        i_max = np.argmax(ds)
-        x, d = xs[i_max], ds[i_max]
-
-        ax.axhline(d, color=c, linestyle='-.', alpha=0.8)
+        ax.axhline(d, color=c, linestyle='-.', alpha=0.35)
         ax.text(x, d, "${:.2f}$".format(d), va='bottom', ha='center', fontdict={'size': 'x-small'}, color=c)
 
         ax.set_ylim(-0.01, max(d * 1.1, ax.get_ylim()[1]))
@@ -63,25 +58,26 @@ class ResultsPlot:
 
     @classmethod
     def _display_sigma_scale(cls, ax, sigma, cx):
-        for i in np.arange(cx[-1] / sigma + 0.5):
-            i_sigma = sigma * (i + 1)
+        for i in np.arange(1, cx[-1] / sigma).astype(int):
+            i_sigma = sigma * i
 
             ax.axvline(i_sigma, color='blue', alpha=0.07)
-            ax.text(i_sigma, 50.0, " ${}\\sigma$".format(int(i + 1) if i != 0 else ""), va='center', ha='left', fontdict={'size': 'small'}, color='blue', alpha=0.25, zorder=100)
+            ax.text(i_sigma, 50.0, " ${}\\sigma$".format(i if i != 1 else ""), va='center', ha='left', fontdict={'size': 'small'}, color='blue', alpha=0.25, zorder=100)
 
-    def _display_powers(self, ax, cx, power_plots):
+    def _display_powers(self, ax, cx, power_plots, d_power_plots):
         power_plots *= 100.0
+        d_power_plots *= 100
 
         f_lines = []
         df_lines = []
 
         d_ax = ax.twinx()
 
-        for i, (rates, name) in enumerate(zip(power_plots, self.crit_names)):
-            f_line = ax.plot(cx, rates, color=self._ith_color(i), marker='.', label=name)
-            f_lines.append(f_line[0])
+        for i, (rates, d_rates, name) in enumerate(zip(power_plots, d_power_plots, self.crit_names)):
+            f_line = ax.plot(cx, rates, marker='.', label=name)[0]
+            f_lines.append(f_line)
 
-            df_line = self._display_derivative(d_ax, cx, rates, self._ith_color(i), name)
+            df_line = self._display_derivative(d_ax, cx, d_rates, f_line.get_color(), name)
             df_lines.append(df_line[0])
 
         if self.dist_std is not None:
@@ -91,7 +87,7 @@ class ResultsPlot:
 
         ax.set_title("Power", loc='left')
 
-        ax.yaxis.grid()
+        ax.yaxis.grid(linestyle=':')
 
         ax.set_xlim(min(cx), max(cx))
         ax.set_ylim(-1.0, 101.0)
@@ -102,14 +98,15 @@ class ResultsPlot:
         all_lines = [line for p in zip(f_lines, df_lines) for line in p]
         d_ax.legend(all_lines, [line.get_label() for line in all_lines], loc='lower right', prop={'size': 'x-small'}, markerscale=1.5)
 
-    def add_result(self, sample_size, fpos_rates, cx, power_plots):
+    def add_result(self, sample_size, fpos_rates, cx, power_plots, d_power_plots):
         self.results.append(
-            (sample_size, fpos_rates, cx, power_plots)
+            (sample_size, fpos_rates, cx, power_plots, d_power_plots)
         )
 
     def display_results(self):
         # TODO: replace with "with plt.rcparams: ..."
         plt.rcParams['font.family'] = 'serif'
+        plt.rcParams['mathtext.fontset'] = 'dejavuserif'
 
         plt.rcParams['xtick.labelsize'] = 'x-small'
         plt.rcParams['xtick.color'] = '#545454'
@@ -125,7 +122,7 @@ class ResultsPlot:
 
         gs = GridSpec(len(self.results), 2)
 
-        for i, (sample_size, fpos_rates, cx, power_plots) in enumerate(self.results):
+        for i, (sample_size, fpos_rates, cx, power_plots, d_power_plots) in enumerate(self.results):
             ax_false_pos = fig.add_subplot(gs[i, 0])
 
             self._display_false_positives(ax_false_pos, fpos_rates)
@@ -133,7 +130,8 @@ class ResultsPlot:
             self._display_powers(
                 fig.add_subplot(gs[i, 1]),
                 cx,
-                power_plots
+                power_plots,
+                d_power_plots
             )
 
             left_loc = ax_false_pos.get_position()
@@ -142,6 +140,7 @@ class ResultsPlot:
                 left_loc.x0 / 2.0,
                 (left_loc.y0 + left_loc.y1) / 2.0,
                 "${:d}$".format(sample_size),
+                family='serif',
                 ha='right'
             )
 
@@ -196,6 +195,15 @@ class TwoSampleExperiment:
 
         return np.transpose(rate_plots)
 
+    @classmethod
+    def get_derivs(self, xs, y_plots):
+        def deriv(xs, ys):
+            return np.convolve(np.gradient(ys) / np.gradient(xs), [0.2, 0.2, 0.2, 0.2, 0.2], mode='same')
+
+        return np.array(
+            [deriv(xs, ys) for ys in y_plots]
+        )
+
 
 from scipy.stats import ttest_ind, ttest_rel, ranksums
 
@@ -230,7 +238,7 @@ def display_results(Dist, dist_name):
         fposx = e.get_false_positives(sample_size)
         powers = e.get_powers(sample_size, cx)
 
-        plot.add_result(sample_size, fposx, cx, powers)
+        plot.add_result(sample_size, fposx, cx, powers, TwoSampleExperiment.get_derivs(cx, powers))
 
     fig = plot.display_results()
 
