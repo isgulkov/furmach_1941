@@ -2,8 +2,8 @@ from os import system
 
 import numpy as np
 
-from matplotlib import pyplot as plt, cm, colors  # TODO: remove cm
-from mpl_toolkits.axes_grid1 import make_axes_locatable
+from matplotlib import pyplot as plt, cm
+from matplotlib.gridspec import GridSpec
 from scipy.stats import rankdata
 
 import pandas as pd
@@ -112,6 +112,10 @@ def display_results(csv_path):
 
     fig = plt.figure(figsize=(10, 12))
 
+    fig.suptitle("Comparison of Pearson and Spearman $\\rho$ on a dataset")
+
+    gs = GridSpec(3, 2, width_ratios=[5, 4])
+
     def get_p_text(p):
         return (
             "${}\\%$".format(
@@ -121,13 +125,13 @@ def display_results(csv_path):
             ) if p < 0.5 else ""
         )
 
-    draw_corr_matrix(plt.subplot(3, 2, 1), col_names, rs_p, annotations=np.vectorize(get_p_text)(ps_p), title="$\\rho_{Pearson}$", fig=fig)
+    draw_corr_matrix(fig.add_subplot(gs[0]), col_names, rs_p, annotations=np.vectorize(get_p_text)(ps_p), title="$\\rho_{Pearson}$", fig=fig)
 
-    draw_corr_matrix(plt.subplot(3, 2, 3), col_names, rs_s, annotations=np.vectorize(get_p_text)(ps_s), title="$\\rho_{Spearman}$", fig=fig)
+    draw_corr_matrix(fig.add_subplot(gs[2]), col_names, rs_s, annotations=np.vectorize(get_p_text)(ps_s), title="$\\rho_{Spearman}$", fig=fig)
 
     p_s_diff = rs_p - rs_s
 
-    draw_corr_matrix(plt.subplot(3, 2, 5), col_names, p_s_diff, title="$\\rho_{Pearson} - \\rho_{Spearman}$", fig=fig)
+    draw_corr_matrix(fig.add_subplot(gs[4]), col_names, p_s_diff, title="$\\rho_{Pearson} - \\rho_{Spearman}$", fig=fig)
 
     col_a, col_b = (
         col_names[i] for i in np.unravel_index(np.absolute(p_s_diff).argmax(), p_s_diff.shape)
@@ -137,11 +141,11 @@ def display_results(csv_path):
 
     colors = plt.rcParams['axes.prop_cycle'].by_key()['color']
 
-    draw_scatter(plt.subplot(3, 2, 2), xs, ys, x_label=col_a, y_label=col_b, title="", c=colors[0])
+    draw_scatter(fig.add_subplot(gs[1]), xs, ys, x_label=col_a, y_label=col_b, title="", c=colors[0])
 
-    draw_scatter(plt.subplot(3, 2, 4), *remove_outliers_both(xs, ys, n_sigma=1.0), x_label=col_a, y_label=col_b, title="with outliers removed", c=colors[1])
+    draw_scatter(fig.add_subplot(gs[3]), *remove_outliers_both(xs, ys, n_sigma=1.0), x_label=col_a, y_label=col_b, title="with outliers removed", c=colors[1])
 
-    draw_scatter(plt.subplot(3, 2, 6), rankdata(xs), rankdata(ys), x_label=col_a, y_label=col_b, title="ranks", c=colors[2])
+    draw_scatter(fig.add_subplot(gs[5]), rankdata(xs), rankdata(ys), x_label=col_a, y_label=col_b, title="ranks", c=colors[2])
 
     fig.subplots_adjust(hspace=0.3)
 
